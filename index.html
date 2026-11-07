@@ -1,0 +1,1340 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f6f4">
+<title>Шкафчик</title>
+<style>
+:root{--bg:#f6f6f4;--surface:#fff;--ink:#252525;--muted:#858585;--line:#ececea;--accent:#343434;--shadow:0 8px 28px rgba(30,30,30,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,textarea{font:inherit}button{cursor:pointer}
+.app{max-width:760px;min-height:100dvh;margin:auto;padding:env(safe-area-inset-top) 18px calc(88px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;padding:24px 2px 18px}
+.brand{display:flex;align-items:center;gap:11px}.brand-mark{width:42px;height:42px;border-radius:14px;background:#eeeae2;display:grid;place-items:center;font-size:25px}.brand h1{font-size:23px;letter-spacing:-.7px;margin:0;font-weight:750}.sub{color:var(--muted);font-size:12px;margin-top:1px}
+.icon-btn{border:0;background:var(--surface);width:42px;height:42px;border-radius:14px;font-size:19px;box-shadow:0 2px 10px rgba(0,0,0,.035)}
+.search{display:flex;align-items:center;gap:9px;background:#eeefed;border-radius:14px;padding:0 14px;height:48px;margin-bottom:22px}.search input{border:0;outline:0;background:transparent;width:100%;color:var(--ink)}
+.scope-picker{position:relative;flex:0 0 auto}
+.scope-trigger{display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--ink);padding:10px 11px;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.035)}
+.scope-trigger-icon{font-size:17px;color:var(--muted)}
+.scope-chevron{font-size:16px;color:var(--muted);margin-left:1px}
+.scope-menu{position:absolute;right:0;top:calc(100% + 9px);width:min(290px,78vw);background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:7px;box-shadow:0 12px 32px rgba(0,0,0,.16);z-index:20}
+.scope-option{display:flex;align-items:center;gap:10px;width:100%;padding:11px 9px;border:0;border-radius:12px;background:transparent;color:var(--ink);text-align:left}
+.scope-option.active{background:var(--surface-2,#f0f0ed)}
+.scope-option-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:10px;background:var(--line);font-size:17px;flex:0 0 auto}
+.scope-option b{display:block;font-size:12px;font-weight:650}
+.scope-option small{display:block;color:var(--muted);font-size:10px;margin-top:3px;white-space:normal}
+.scope-check{margin-left:auto;color:var(--accent,#3983c8);opacity:0}
+.scope-option.active .scope-check{opacity:1}
+.folder-path,.note-path{font-size:10px;color:var(--muted);margin-top:6px;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
+.note-path{padding-top:5px;border-top:1px solid var(--line);margin-top:6px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:21px 1px 12px}.section-head h2{font-size:16px;margin:0;font-weight:700}.small-action{border:0;background:transparent;color:#666;font-size:13px;padding:6px}
+.breadcrumb{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:0 1px 14px}.crumb{border:0;background:none;color:inherit;padding:2px}.crumb.current{color:var(--ink);font-weight:650}
+.location-banner{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--folder-accent,#999);border-radius:16px;padding:13px 14px;margin:0 0 20px;box-shadow:0 3px 12px rgba(0,0,0,.025)}
+.location-title{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:750}
+.location-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:22px}
+.location-caption{font-size:12px;color:var(--muted);margin:4px 0 0 48px}
+.folder-view-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.folder-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.folder{position:relative;min-height:105px;border:1px solid transparent;border-radius:16px;padding:12px 10px;text-align:left;background:var(--surface);box-shadow:0 2px 10px rgba(0,0,0,.025);overflow:hidden}
+.folder:active{transform:scale(.98)}.folder-icon{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-size:22px;margin-bottom:8px}.folder-name{font-size:12px;font-weight:680;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.folder-meta{font-size:10px;color:var(--muted);margin-top:2px}
+.folder-path{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
+.folder-menu{position:absolute;right:5px;top:5px;border:0;background:transparent;color:#999;font-size:18px;width:25px;height:25px}
+.empty{border:1px dashed #d8d8d4;border-radius:16px;padding:23px 14px;text-align:center;color:var(--muted);font-size:13px}
+.notes{display:grid;gap:5px}.note{background:var(--surface);border-radius:11px;padding:10px 12px;display:flex;align-items:center;gap:9px;box-shadow:0 1px 5px rgba(0,0,0,.025);border:0;text-align:left;width:100%;min-height:58px}.note-content{min-width:0;flex:1}.note-title{font-weight:650;font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.note-preview{font-size:11px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35}.note-date{font-size:10px;color:#92928e;margin-top:7px;line-height:1.3;letter-spacing:.01em}.pin-btn{border:0;background:transparent;color:#999;font-size:17px;padding:5px;min-width:30px}.pin-btn.pinned{color:#c18b27}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:10px max(18px,calc((100vw - 720px)/2)) calc(10px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;z-index:4}.nav{border:0;background:transparent;color:#888;font-size:11px;display:grid;gap:3px;justify-items:center;min-width:60px}.nav b{font-size:20px;font-weight:500}.nav.active{color:#222;font-weight:700}
+.launch-calendar-icon{box-sizing:border-box;width:28px;height:29px;border:1.7px solid currentColor;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow:hidden;line-height:1;padding-bottom:1px}
+.launch-calendar-icon:before{content:"";display:block;width:100%;height:6px;background:#d66b65;flex:0 0 6px}
+.launch-calendar-icon span{font-size:11px;font-weight:800;line-height:12px;margin-top:1px}
+.launch-calendar-icon small{display:block;font-size:6px;font-weight:800;line-height:7px;letter-spacing:.25px}
+.fab{position:fixed;right:max(20px,calc((100vw - 720px)/2));bottom:84px;border:0;border-radius:18px;background:#282828;color:white;padding:14px 18px;box-shadow:var(--shadow);font-weight:650;z-index:3}
+.modal-wrap{position:fixed;inset:0;background:rgba(20,20,20,.36);display:none;align-items:flex-end;justify-content:center;z-index:10;padding:12px}.modal-wrap.show{display:flex}.modal{background:var(--surface);width:min(100%,560px);max-height:90dvh;overflow:auto;border-radius:24px;padding:20px;box-shadow:0 18px 60px rgba(0,0,0,.2)}.modal h3{margin:0 0 17px;font-size:19px}.field{display:grid;gap:7px;margin:13px 0}.field label{font-size:12px;color:#777;font-weight:650}.field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;outline:none;background:#fbfbfa;color:var(--ink)}.field textarea{min-height:145px;resize:vertical}.row{display:flex;align-items:center;gap:9px}.row.between{justify-content:space-between}.palette{display:flex;gap:9px;flex-wrap:wrap}.swatch{width:30px;height:30px;border-radius:50%;border:2px solid white;box-shadow:0 0 0 1px #ddd}.swatch.selected{box-shadow:0 0 0 2px #333}.color-input{width:42px!important;height:34px;padding:2px!important;border:0!important;background:none!important}
+.icon-tabs{display:flex;gap:7px;overflow:auto;padding-bottom:8px}.tab{white-space:nowrap;border:0;background:#f0f0ee;padding:8px 12px;border-radius:20px;font-size:12px;color:#666}.tab.active{background:#303030;color:#fff}.icon-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:9px}.icon-choice{height:48px;border:1px solid transparent;background:#f5f5f3;border-radius:12px;font-size:22px}.icon-choice.selected{border-color:#333;background:#eee}.actions{display:flex;gap:9px;margin-top:18px}.primary,.secondary,.danger{border:0;border-radius:13px;padding:12px 15px;font-weight:650;flex:1}.primary{background:#292929;color:white}.secondary{background:#f0f0ee;color:#333}.danger{background:#fff0ee;color:#a33}
+.back{border:0;background:none;font-size:14px;color:#666;padding:4px 0 12px}
+.move-current{padding:11px 13px;border-radius:13px;background:var(--line);color:var(--muted);font-size:12px;line-height:1.45;margin:10px 0}.move-current b{color:var(--ink)}.hidden{display:none!important}.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#282828;color:white;border-radius:20px;padding:10px 15px;font-size:12px;z-index:20;opacity:0;transition:.2s;pointer-events:none}.toast.show{opacity:1}
+ .editor-toolbar{display:flex;gap:5px;flex-wrap:wrap;padding:8px;background:#f2f2f0;border:1px solid var(--line);border-radius:12px 12px 0 0}
+.editor-toolbar button{min-width:34px;height:34px;border:0;border-radius:8px;background:#fff;color:#333;font-size:15px}
+.editor-toolbar select{max-width:135px;border:0;border-radius:8px;background:#fff;padding:0 7px;font-size:11px;color:#444}
+.rich-editor{min-height:220px;max-height:48vh;overflow:auto;border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;padding:13px;background:#fff;outline:none;line-height:1.6;font-size:14px}
+.rich-editor:empty:before{content:attr(data-placeholder);color:#aaa;pointer-events:none}
+.rich-editor h2{font-size:21px;margin:10px 0}.rich-editor h3{font-size:17px;margin:8px 0}
+.rich-editor img{max-width:100%;height:auto;border-radius:9px;display:block;margin:9px 0;cursor:pointer}
+.rich-editor img.selected-image{outline:2px solid #568b75;outline-offset:2px}
+.rich-editor .check-row{display:flex!important;flex-direction:row;align-items:flex-start;gap:10px;width:100%;min-width:100%;box-sizing:border-box;clear:both;float:none;position:relative;margin:7px 0;line-height:1.55}
+.rich-editor .check-row input{display:block;width:18px;height:18px;min-width:18px;max-width:18px;flex:0 0 18px;margin:3px 0 0;float:none}
+.rich-editor .check-row .check-text{display:block;flex:1 1 auto;width:calc(100% - 28px);min-width:0;min-height:1.55em;white-space:pre-wrap;overflow-wrap:anywhere;outline:none}
+.rich-editor .check-row .check-text:empty:after{content:"\00a0"}.rich-editor ol,.rich-editor ul{padding-left:26px;margin:8px 0}.rich-editor li{padding-left:3px;margin:3px 0}.rich-editor img{max-width:100%;height:auto;object-fit:contain}
+.editor-tools-row{display:flex;align-items:center;gap:8px;padding:8px 2px;color:#888;font-size:10px}
+.editor-tools-row input{flex:1;min-width:60px}.editor-tools-row label{white-space:nowrap}
+.attachment-list{display:grid;gap:5px}.attachment-chip{display:flex;align-items:center;gap:8px;background:#f5f5f3;border-radius:9px;padding:8px 10px;font-size:11px}
+.attachment-chip button{border:0;background:none;color:#999;margin-left:auto}
+.autosave-status{font-size:10px;color:#8a9b91;padding:5px 2px}
+#viewBody img{max-width:100%;height:auto;border-radius:10px;display:block;margin:10px 0}
+#viewBody .check-row{display:flex;align-items:center;gap:8px;margin:5px 0}
+#viewAttachments{display:grid;gap:6px;margin-top:14px}
+#viewAttachments a{display:block;padding:10px 12px;background:#f3f3f1;border-radius:10px;color:#444;text-decoration:none;font-size:12px}
+@media(min-width:600px){.app{padding-left:28px;padding-right:28px}.folder-grid{gap:13px}.folder{min-height:116px;padding:14px}.folder-icon{width:40px;height:40px}.folder-name{font-size:13px}}
+
+/* Full-screen, compact note editor for mobile */
+#noteModal.modal-wrap{padding:0;align-items:stretch;justify-content:stretch}
+#noteModal .modal{width:100%;max-width:none;height:100dvh;max-height:100dvh;border-radius:0;padding: max(10px, env(safe-area-inset-top)) 14px max(10px, env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px;overflow:hidden;box-shadow:none}
+#noteModal .modal h3{font-size:17px;margin:0 0 2px;flex:0 0 auto}
+#noteModal .field{display:flex;flex-direction:column;gap:4px;margin:0;min-height:0;flex:1}
+#noteModal .field>label{font-size:10px;margin-left:2px}
+#noteModal #noteTitle{padding:9px 11px;border-radius:10px;font-size:15px;flex:0 0 auto}
+#noteModal .editor-toolbar{flex:0 0 auto;display:flex;flex-wrap:nowrap;gap:4px;padding:5px;border-radius:10px;overflow-x:auto;scrollbar-width:none}
+#noteModal .editor-toolbar::-webkit-scrollbar{display:none}
+#noteModal .editor-toolbar button{height:32px;min-width:32px;padding:0 8px;font-size:13px;flex:0 0 auto}
+#noteModal .editor-toolbar select{height:32px;max-width:112px;min-width:90px;font-size:10px;flex:0 0 auto}
+#noteModal .rich-editor{flex:1;min-height:80px;height:auto;max-height:none;overflow:auto;padding:11px;font-size:15px;border-radius:0 0 10px 10px}
+#noteModal .editor-tools-row{flex:0 0 auto;padding:3px 1px;gap:6px;font-size:10px}
+#noteModal .editor-tools-row label{max-width:125px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#noteModal .editor-tools-row input{height:18px}
+#noteModal .attachment-list{flex:0 0 auto;max-height:72px;overflow:auto;gap:3px}
+#noteModal .attachment-chip{padding:5px 8px;font-size:10px}
+#noteModal .autosave-status{flex:0 0 auto;font-size:9px;padding:1px 2px;min-height:13px}
+#noteModal .actions{flex:0 0 auto;margin-top:2px;gap:8px}
+#noteModal .actions button{padding:10px 14px;min-height:42px;font-size:14px}
+@media (max-height:620px){
+ #noteModal .rich-editor{font-size:14px}
+ #noteModal .editor-toolbar button,#noteModal .editor-toolbar select{height:29px}
+ #noteModal .actions button{min-height:36px;padding:7px 12px}
+}
+
+/* Fix flex sizing: title field stays compact; content field receives the free space */
+#noteModal .field{flex:0 0 auto}
+#noteModal #noteContentField{flex:1 1 auto;min-height:0}
+#noteModal #noteContentField .rich-editor{flex:1 1 auto;min-height:120px}
+#noteModal #noteTitle{width:100%}
+
+#noteModal .rich-editor li[style*="font-size"]{margin-top:7px;margin-bottom:7px}
+#noteModal .rich-editor li{padding-left:4px}
+
+/* Keep the editor and every control inside the viewport */
+#noteModal, #noteModal *{box-sizing:border-box}
+#noteModal.modal-wrap{width:100vw;max-width:100vw;overflow:hidden}
+#noteModal .modal{width:100%;max-width:100vw;min-width:0;overflow-x:hidden}
+#noteModal .field,
+#noteModal #noteContentField,
+#noteModal .editor-toolbar,
+#noteModal .rich-editor,
+#noteModal .editor-tools-row,
+#noteModal .attachment-list,
+#noteModal .actions{width:100%;max-width:100%;min-width:0}
+#noteModal .rich-editor{overflow-x:hidden;overflow-wrap:anywhere;word-break:break-word}
+#noteModal .rich-editor *{max-width:100%;box-sizing:border-box}
+#noteModal .rich-editor img,
+#noteModal .rich-editor video,
+#noteModal .rich-editor table{max-width:100%;height:auto}
+#noteModal .editor-toolbar{overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap}
+#noteModal .editor-tools-row{overflow:hidden}
+#noteModal .editor-tools-row label{flex:0 1 125px;min-width:0}
+#noteModal .editor-tools-row input{flex:1 1 80px;min-width:0;max-width:100%}
+#noteModal .actions{display:flex}
+#noteModal .actions button{flex:1 1 0;min-width:0}
+
+/* Stable page geometry: header controls and content share one viewport column */
+html,body{width:100%;max-width:100%;min-width:0;overflow-x:hidden}
+.app{width:100%;max-width:760px;min-width:0;margin:0 auto;overflow-x:clip}
+.app>*{min-width:0;max-width:100%}
+header{width:100%;min-width:0;gap:10px}
+header .brand{flex:1 1 auto;min-width:0}
+header .brand>div:last-child{min-width:0}
+header .brand h1,header .sub{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+header>.row{flex:0 0 auto;margin-left:auto;gap:8px!important}
+.icon-btn{flex:0 0 42px;width:42px;height:42px}
+.folder-grid,.notes,.section-head,.breadcrumb,.location-banner{width:100%;min-width:0}
+.create-options{display:grid;gap:9px}
+.create-option{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:12px;border:1px solid var(--line);border-radius:15px;background:#fbfbfa;color:var(--ink)}
+.create-option-icon{width:42px;height:42px;border-radius:12px;background:#efefec;display:grid;place-items:center;font-size:23px;flex:0 0 42px}
+.create-option b{display:block;font-size:15px}
+.create-option small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.create-arrow{margin-left:auto;font-size:25px;color:#999}
+
+.settings-section{display:grid;gap:9px}
+.settings-title{font-size:14px;font-weight:700}
+.settings-description{font-size:12px;color:var(--muted);margin:0 0 3px}
+.settings-action{display:flex;align-items:center;gap:11px;width:100%;padding:12px;border:1px solid var(--line);border-radius:13px;background:#fafaf9;color:var(--ink);text-align:left}
+.settings-action>span:first-child{font-size:21px}
+.settings-action b{display:block;font-size:13px}
+.settings-action small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.backup-status{font-size:11px;line-height:1.4;color:var(--muted);padding:8px 2px}
+
+.language-select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fbfbfa;color:var(--ink);font:inherit;font-size:13px}
+.language-section{margin-bottom:14px}
+
+.music-screen{display:none;position:fixed;inset:0 0 calc(62px + env(safe-area-inset-bottom)) 0;z-index:3;background:var(--bg,#f6f6f4);align-items:center;justify-content:center;padding:24px}
+.music-screen.visible{display:flex}
+.music-placeholder{font-size:clamp(26px,7vw,42px);font-weight:650;letter-spacing:-.7px;color:var(--ink,#252525);text-align:center}
+.bottom{z-index:5}
+/* v2.1: prevent long note content from widening cards */
+.notes,.note,.note>button[data-note],.note-content,.note-title,.note-preview,.note-date{min-width:0;max-width:100%}
+.note>button[data-note]{display:block;overflow:hidden}
+.note-content{display:block;width:100%;overflow:hidden}
+.note-title,.note-preview,.note-date{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
+
+#imageSizeControls[hidden]{display:none!important}
+.folder-action-head{display:flex;align-items:center;gap:13px;margin-bottom:17px}
+.folder-action-symbol{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:27px;flex:0 0 auto}
+.folder-action-head h3{margin:0 0 4px;font-size:18px}
+.folder-action-caption{font-size:12px;color:var(--muted)}
+.folder-action-list{display:grid;gap:7px}
+.folder-action-option{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border:1px solid var(--line);border-radius:15px;background:var(--surface);color:var(--ink);text-align:left}
+.folder-action-emoji{width:34px;height:34px;border-radius:11px;background:var(--line);display:grid;place-items:center;font-size:19px;flex:0 0 auto}
+.folder-action-option b{display:block;font-size:13px;font-weight:650}
+.folder-action-option small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.folder-action-arrow{margin-left:auto;color:var(--muted);font-size:22px}
+.folder-action-delete .folder-action-emoji{background:#fff0ee;color:#a33}
+.folder-action-delete b{color:#a33}
+.trash-icon-btn,.move-icon-btn{box-sizing:border-box;width:40px;height:40px;flex:0 0 40px;border:0;border-radius:12px;display:grid;place-items:center;font-size:21px;line-height:1}
+.trash-icon-btn{background:#f8eeee;color:#a45d5d;font-size:20px}
+.trash-icon-btn:active{background:#f0dddd}
+.move-icon-btn{background:#edf2f7;color:#536b83;font-size:23px;font-weight:700}
+.move-icon-btn:active{background:#dfe8f0}
+.delete-confirm-symbol{width:48px;height:48px;border-radius:15px;background:#fff0ee;color:#a33;display:grid;place-items:center;font-size:25px;margin-bottom:13px}
+.calendar-screen{display:none;position:fixed;inset:0 0 76px;overflow:auto;padding:18px 16px 24px;background:var(--bg);z-index:3}
+.calendar-screen.visible{display:block}
+.calendar-panel{max-width:620px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 4px 18px rgba(0,0,0,.035)}
+.calendar-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.calendar-top h2{font-size:19px;margin:0 0 3px;text-transform:capitalize}
+.calendar-top small{font-size:10px;color:var(--muted)}
+.calendar-top button{width:38px;height:38px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font-size:24px}
+.calendar-weekdays,.calendar-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.calendar-weekdays span{text-align:center;color:var(--muted);font-size:10px;padding:5px 0}
+.calendar-day{position:relative;min-height:42px;border:0;border-radius:12px;background:transparent;color:var(--ink);font-size:13px}
+.calendar-day.muted{opacity:.28}
+.calendar-day.today{background:var(--line);font-weight:750}
+.calendar-day.selected{background:var(--ink);color:var(--surface)}
+
+.calendar-day-notes{border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
+.calendar-day-title{font-size:13px;font-weight:700;margin:0 0 10px}
+.calendar-note{display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid var(--line);width:100%;border-left:0;border-right:0;border-top:0;background:transparent;color:var(--ink);text-align:left}
+.calendar-note span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.calendar-note small{margin-left:auto;color:var(--muted);font-size:10px;white-space:nowrap}
+
+
+/* Calendar events */
+.calendar-add-event{width:100%;margin-top:14px;padding:13px;border-radius:14px}
+.calendar-event{display:flex;align-items:flex-start;gap:9px;padding:11px 0;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);width:100%;text-align:left}
+.calendar-event .event-dot{width:9px;height:9px;border-radius:50%;background:#d69b45;flex:0 0 9px;margin-top:5px}
+.calendar-event .event-main{min-width:0;display:grid;gap:3px;flex:1}
+.calendar-event strong{font-size:13px;font-weight:700;overflow-wrap:anywhere}
+.calendar-event small{font-size:11px;color:var(--muted)}
+/* Individual event dots and square note markers */
+.calendar-day{min-height:50px;padding-bottom:13px}
+.calendar-markers{position:absolute;left:2px;right:2px;bottom:3px;display:grid;grid-template-rows:4px 4px;justify-items:center;gap:2px;pointer-events:none}
+.calendar-marker-row{width:100%;height:4px;display:flex;justify-content:center;align-items:center;gap:2px;overflow:hidden;white-space:nowrap}
+.calendar-marker-event{width:4px;height:4px;border-radius:50%;flex:0 0 4px}
+.calendar-marker-note{width:4px;height:4px;border-radius:1px;background:#4d9a78;flex:0 0 4px}
+.calendar-day.selected .calendar-marker-note{background:#4d9a78}
+.event-color-picker{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:4px 0}
+.event-color-swatch{width:30px;height:30px;border-radius:50%;border:3px solid var(--surface);background:var(--swatch);box-shadow:0 0 0 1px var(--line);padding:0}
+.event-color-swatch.selected{box-shadow:0 0 0 2px var(--ink)}
+.event-color-none{background:var(--soft);color:var(--muted);font-size:20px;font-weight:500;line-height:1}
+.event-color-hint{display:block;color:var(--muted);font-size:10px;line-height:1.4;margin-top:5px}
+.calendar-event .event-dot{background:var(--event-color,#d69b45)}
+.event-notice{font-size:11px;color:var(--muted);line-height:1.45;margin-top:14px;padding:10px;background:var(--soft);border-radius:10px}
+#eventModal .field textarea{min-height:76px}
+#eventModal .field select{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fbfbfa;color:var(--ink)}
+
+/* Custom move destination picker */
+.move-destination-list{display:grid;gap:6px;max-height:min(48dvh,390px);overflow:auto;padding:3px 2px;overscroll-behavior:contain}
+.move-destination-option{width:100%;display:flex;align-items:center;gap:11px;text-align:left;padding:12px 13px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--ink);min-height:50px}
+.move-destination-option .move-folder-icon{width:30px;height:30px;border-radius:9px;background:var(--soft);display:grid;place-items:center;flex:0 0 30px;font-size:17px}
+.move-destination-option .move-folder-name{min-width:0;flex:1;font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.move-destination-option .move-folder-path{display:block;color:var(--muted);font-size:10px;font-weight:400;margin-top:2px}
+.move-destination-option .move-check{width:21px;height:21px;border:2px solid #aaa;border-radius:50%;display:grid;place-items:center;flex:0 0 21px}
+.move-destination-option.selected{border-color:#3b9a8e;background:color-mix(in srgb,#3b9a8e 8%,var(--surface))}
+.move-destination-option.selected .move-check{border-color:#168b7d;background:#168b7d}
+.move-destination-option.selected .move-check:after{content:"";width:7px;height:7px;border-radius:50%;background:white}
+.launch-calendar-icon{height:34px;width:31px;gap:0}
+.launch-calendar-icon:before{height:6px;flex-basis:6px}
+.launch-calendar-icon span{font-size:12px;line-height:14px;margin-top:2px}
+.launch-calendar-icon small{font-size:6px;line-height:7px;letter-spacing:.15px}
+
+
+/* Add note from calendar */
+.calendar-add-note{width:100%;margin-top:9px;padding:13px;border-radius:14px}
+.calendar-note-folder-hint{font-size:12px;color:var(--muted);line-height:1.45;margin:-5px 0 12px}
+#calendarNoteFolderList{max-height:min(45dvh,360px)}
+
+/* Clear stacked numbered-list toolbar icon */
+.ordered-list-icon{display:inline-grid;grid-template-columns:auto;gap:0;align-content:center;justify-items:start;font-size:9px;font-weight:700;line-height:9px;letter-spacing:.1px;vertical-align:middle}
+.ordered-list-icon i{font-style:normal;display:block}
+#editorToolbar [data-cmd="insertOrderedList"]{min-width:34px;padding:0 9px}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div class="brand"><div class="brand-mark">🗄️</div><div><h1>Шкафчик</h1><div class="sub">Всё важное — в одном месте</div></div></div>
+ <div class="row" style="gap:8px">
+  <button class="icon-btn" id="searchToggle" aria-label="Поиск">⌕</button>
+  <button class="icon-btn" id="settingsBtn" aria-label="Настройки">⚙</button>
+ </div>
+</header>
+<div class="search hidden" id="searchBar">
+ <span>⌕</span><input id="searchInput" placeholder="Найти заметку или папку">
+ <div class="scope-picker" id="scopePicker">
+  <button type="button" class="scope-trigger" id="scopeTrigger" aria-expanded="false"><span class="scope-trigger-icon">⌖</span><span id="scopeLabel">В этой области</span><span class="scope-chevron">⌄</span></button>
+  <div class="scope-menu hidden" id="scopeMenu">
+   <button type="button" class="scope-option active" data-scope="current"><span class="scope-option-icon">⌖</span><span><b>В этой области</b><small>Открытая папка и все внутри неё</small></span><span class="scope-check">✓</span></button>
+   <button type="button" class="scope-option" data-scope="all"><span class="scope-option-icon">▦</span><span><b>Во всех папках</b><small>Поиск по всему «Шкафчику»</small></span><span class="scope-check">✓</span></button>
+  </div>
+ </div>
+</div>
+<div id="locationBanner" class="location-banner hidden"></div>
+<div class="breadcrumb" id="breadcrumb"></div>
+<div class="section-head"><h2 id="foldersHeading">Мои папки</h2><button class="small-action" id="addFolderTop">＋ Папка</button></div>
+<div class="folder-grid" id="folderGrid"></div>
+<div class="section-head"><h2 id="notesHeading">Заметки</h2><button class="small-action" id="addNoteTop">＋ Заметка</button></div>
+<div class="notes" id="notesList"></div>
+</div>
+<button class="fab" id="fab">＋ Создать</button>
+<nav class="bottom">
+ <button class="nav active" id="homeNav"><b>⌂</b>Главная</button>
+ <button class="nav" id="musicNav"><b>♫</b>Музыка</button>
+ <button class="nav" id="calendarNav"><b class="launch-calendar-icon" id="calendarNavDate"><span id="calendarNavDay">7</span><small id="calendarNavMonth">НОЯ</small></b>Календарь</button>
+</nav>
+<div id="musicScreen" class="music-screen" aria-live="polite"><div class="music-placeholder">В разработке</div></div>
+<div id="calendarScreen" class="calendar-screen"><div class="calendar-panel"><div class="calendar-top"><button id="calendarPrev" aria-label="Предыдущий месяц">‹</button><div><h2 id="calendarMonth"></h2><small>Заметки и события</small></div><button id="calendarNext" aria-label="Следующий месяц">›</button></div><div class="calendar-weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div><div id="calendarDays" class="calendar-days"></div><div id="calendarDayNotes" class="calendar-day-notes"><div class="empty">Выбери день, чтобы посмотреть заметки и события</div></div><button class="primary calendar-add-event" id="addCalendarEvent">＋ Добавить событие</button><button class="secondary calendar-add-note" id="addCalendarNote">＋ Добавить заметку</button></div></div>
+<div class="modal-wrap" id="calendarNoteFolderModal"><div class="modal">
+ <h3>Куда сохранить заметку?</h3>
+ <p class="calendar-note-folder-hint">Выбери папку. Если ничего не выбирать, заметка сохранится на главной.</p>
+ <div id="calendarNoteFolderList" class="move-destination-list" role="listbox" aria-label="Папки для заметки"></div>
+ <div class="actions"><button class="secondary" id="cancelCalendarNoteFolder">Отмена</button><button class="primary" id="confirmCalendarNoteFolder">Продолжить</button></div>
+</div></div>
+<div class="modal-wrap" id="eventModal"><div class="modal">
+ <h3 id="eventModalTitle">Новое событие</h3>
+ <div class="field"><label for="eventTitle">Название события</label><input id="eventTitle" maxlength="90" placeholder="Например, позвонить папе"></div>
+ <div class="row">
+  <div class="field" style="flex:1"><label for="eventDate">Дата</label><input id="eventDate" type="date"></div>
+  <div class="field" style="flex:1"><label for="eventTime">Время</label><input id="eventTime" type="time" value="09:00"></div>
+ </div>
+ <div class="field"><label for="eventDescription">Описание</label><textarea id="eventDescription" placeholder="Подробности события..." rows="3"></textarea></div>
+ <div class="field"><label for="eventRepeat">Повторение</label><select id="eventRepeat"><option value="none">Не повторять</option><option value="daily">Каждый день</option><option value="weekly">Каждую неделю</option><option value="monthly">Каждый месяц</option><option value="yearly">Каждый год</option></select></div>
+ <div class="field"><label>Цвет события</label><div class="event-color-picker" id="eventColorPicker">
+  <button type="button" class="event-color-swatch" data-event-color="#D69B45" aria-label="Оранжевый" style="--swatch:#D69B45"></button>
+  <button type="button" class="event-color-swatch" data-event-color="#4D9A78" aria-label="Зелёный" style="--swatch:#4D9A78"></button>
+  <button type="button" class="event-color-swatch" data-event-color="#4F86C6" aria-label="Синий" style="--swatch:#4F86C6"></button>
+  <button type="button" class="event-color-swatch" data-event-color="#9870C8" aria-label="Фиолетовый" style="--swatch:#9870C8"></button>
+  <button type="button" class="event-color-swatch" data-event-color="#D66A91" aria-label="Розовый" style="--swatch:#D66A91"></button>
+  <button type="button" class="event-color-swatch" data-event-color="#D66B55" aria-label="Красный" style="--swatch:#D66B55"></button>
+  <button type="button" class="event-color-swatch" data-event-color="#54AFA5" aria-label="Бирюзовый" style="--swatch:#54AFA5"></button>
+  <button type="button" class="event-color-swatch" data-event-color="#82909E" aria-label="Серый" style="--swatch:#82909E"></button>
+  <button type="button" class="event-color-swatch event-color-none" data-event-color="none" aria-label="Без отметки" title="Не показывать точку">×</button>
+ </div><small class="event-color-hint">«Без отметки» — событие останется в календаре, но точка не будет показана.</small></div>
+ <div class="field"><label for="eventReminder">Напомнить заранее</label><select id="eventReminder"><option value="0">В момент события</option><option value="5">За 5 минут</option><option value="10">За 10 минут</option><option value="30">За 30 минут</option><option value="60">За 1 час</option><option value="1440">За 1 день</option></select></div>
+ <div class="row" style="justify-content:flex-end;gap:8px;margin-top:18px"><button class="secondary" id="cancelEvent">Отмена</button><button class="primary" id="saveEvent">Сохранить</button></div>
+ <button class="secondary" id="deleteEvent" style="display:none;width:100%;margin-top:10px;color:#a45d5d">Удалить событие</button>
+ <div class="event-notice">Напоминания отправляются через Android, пока «Шкафчик» открыт или работает в фоне. Если Android полностью остановит приложение, напоминание может не прийти.</div>
+</div></div>
+<div class="modal-wrap" id="settingsModal"><div class="modal">
+ <h3>Настройки</h3>
+ <div class="settings-section language-section">
+  <div class="settings-title">Язык приложения</div>
+  <select id="languageSelect" class="language-select" aria-label="App language">
+   <option value="ru">Русский</option>
+   <option value="en">English</option>
+  </select>
+  <p class="settings-description">Язык интерфейса можно изменить в любое время.</p>
+ </div>
+ <div class="settings-section">
+  <div class="settings-title">Уведомления</div>
+  <p class="settings-description">Проверь, может ли Android отправлять уведомления от «Шкафчика». Напоминания о событиях будут работать, пока приложение активно.</p>
+  <button class="settings-action" id="testNotificationBtn"><span>🔔</span><span><b>Отправить тестовое уведомление</b><small>Проверить связь с Android</small></span></button>
+  <div class="backup-status" id="notificationStatus">Нажми кнопку, чтобы проверить уведомления.</div>
+ </div>
+ <div class="settings-section">
+  <div class="settings-title">Хранилище</div>
+  <button class="settings-action" id="openTrashSettings"><span>🗑️</span><span><b>Корзина</b><small>Просмотреть и восстановить удалённые заметки и папки</small></span></button>
+ </div>
+ <div class="settings-section">
+  <div class="settings-title">Резервное копирование</div>
+  <p class="settings-description">Сохрани все папки, заметки, фотографии и вложения в один файл. Его можно будет использовать для восстановления данных.</p>
+  <button class="settings-action" id="exportBackupBtn"><span>⬇️</span><span><b>Создать резервную копию</b><small>Скачать файл со всеми данными</small></span></button>
+  <button class="settings-action" id="importBackupBtn"><span>⬆️</span><span><b>Восстановить из копии</b><small>Заменить текущие данные данными из файла</small></span></button>
+  <input type="file" id="backupFileInput" accept=".json,application/json" hidden>
+  <div class="backup-status" id="backupStatus">Рекомендуем периодически сохранять резервную копию в отдельное место.</div>
+ </div>
+ <div class="actions"><button class="secondary" data-close="settingsModal">Закрыть</button></div>
+</div></div>
+<div class="modal-wrap" id="createChoiceModal"><div class="modal" style="max-width:420px">
+ <h3>Что создаём?</h3>
+ <div class="create-options">
+  <button class="create-option" id="createFolderChoice"><span class="create-option-icon">📁</span><span><b>Новую папку</b><small>Для заметок и других папок</small></span><span class="create-arrow">›</span></button>
+  <button class="create-option" id="createNoteChoice"><span class="create-option-icon">📝</span><span><b>Новую заметку</b><small>Записать мысль или важную информацию</small></span><span class="create-arrow">›</span></button>
+ </div>
+ <div class="actions"><button class="secondary" id="cancelCreateChoice">Отмена</button></div>
+</div></div>
+<div class="modal-wrap" id="folderModal"><div class="modal">
+ <h3 id="folderModalTitle">Новая папка</h3>
+ <div class="field"><label for="folderName">Название папки</label><input id="folderName" maxlength="40" placeholder="Например, Дневник"></div>
+ <div class="field"><label>Иконка</label><div class="icon-tabs" id="iconTabs"></div><div class="icon-grid" id="iconGrid"></div></div>
+ <div class="field"><label>Цвет папки</label><div class="palette" id="palette"></div><div class="row"><input class="color-input" type="color" id="customColor" value="#6d9b83"><span style="font-size:12px;color:#777">Выбрать любой оттенок</span></div></div>
+ <div class="actions"><button class="secondary" data-close="folderModal">Отмена</button><button class="primary" id="saveFolder">Сохранить</button></div>
+</div></div>
+<div class="modal-wrap" id="noteModal"><div class="modal">
+ <h3 id="noteModalTitle">Новая заметка</h3>
+ <div class="field"><label>Название</label><input id="noteTitle" maxlength="100" placeholder="Название заметки"></div>
+ <div class="field" id="noteContentField"><label>Содержание</label>
+  <div class="editor-toolbar" id="editorToolbar">
+   <button type="button" data-cmd="bold" title="Жирный"><b>B</b></button>
+   <button type="button" data-cmd="italic" title="Курсив"><i>I</i></button>
+   <button type="button" data-cmd="underline" title="Подчёркнутый"><u>U</u></button>
+   <select id="blockFormat" aria-label="Стиль текста"><option value="p">Обычный текст</option><option value="h2">Заголовок</option><option value="h3">Подзаголовок</option></select>
+   <button type="button" data-cmd="insertUnorderedList" title="Маркированный список">☷</button>
+   <button type="button" data-cmd="insertOrderedList" title="Нумерованный список"><span class="ordered-list-icon"><i>1.</i><i>2.</i><i>3.</i></span></button>
+   <button type="button" id="checklistBtn" title="Добавить пункт чек-листа">☑</button>
+   <button type="button" id="imageBtn" title="Вставить фотографию">▧ Фото</button>
+   <button type="button" id="attachBtn" title="Прикрепить документ или файл">📎 Файл</button>
+  </div>
+  <div id="noteEditor" class="rich-editor" contenteditable="true" data-placeholder="Начни записывать здесь…"></div>
+  <div class="editor-tools-row" id="imageSizeControls" hidden><label id="imageSizeLabel">Размер выбранного фото</label><input id="imageSize" type="range" min="20" max="100" value="100" disabled><span id="imageSizeValue">—</span></div>
+  <div id="attachmentList" class="attachment-list"></div>
+  <input id="imageInput" type="file" accept="image/*" hidden>
+  <input id="fileInput" type="file" multiple hidden>
+  <div class="autosave-status" id="autosaveStatus">Автосохранение включено</div>
+ </div>
+ <div class="actions"><button class="secondary" data-close="noteModal">Закрыть</button><button class="primary" id="saveNote">Сохранить</button></div>
+</div></div>
+<div class="modal-wrap" id="viewModal"><div class="modal">
+ <button class="back" id="closeView">← Назад</button><h3 id="viewTitle"></h3><div id="viewDates" style="display:grid;gap:5px;margin:-7px 0 17px;padding:11px 12px;background:#f5f5f3;border-radius:12px;color:#777;font-size:11px"></div><div id="viewBody" style="line-height:1.65;color:#555"></div><div id="viewAttachments"></div>
+ <div class="actions"><button class="move-icon-btn" id="moveNote" aria-label="Переместить заметку" title="Переместить">⇄</button><button class="trash-icon-btn" id="deleteNote" aria-label="Переместить заметку в корзину" title="В корзину">🗑️</button><button class="primary" id="editNote">Редактировать</button></div>
+</div></div>
+<div class="modal-wrap" id="deleteNoteConfirmModal"><div class="modal" style="max-width:420px">
+ <div class="delete-confirm-symbol">♲</div>
+ <h3>Переместить заметку в корзину?</h3>
+ <p style="color:var(--muted);font-size:13px;line-height:1.5;margin:-7px 0 14px">Заметка будет перемещена в корзину. Её можно будет восстановить в течение 30 дней.</p>
+ <div class="actions"><button class="secondary" data-close="deleteNoteConfirmModal">Отмена</button><button class="danger" id="confirmDeleteNote">В корзину</button></div>
+</div></div>
+<div class="modal-wrap" id="folderActionsModal"><div class="modal">
+ <div class="folder-action-head"><div class="folder-action-symbol" id="folderActionIcon">📁</div><div><h3 id="folderActionName">Папка</h3><div class="folder-action-caption">Что хотите сделать?</div></div></div>
+ <div class="folder-action-list">
+  <button class="folder-action-option" id="folderActionOpen"><span class="folder-action-emoji">↗</span><span><b>Открыть папку</b><small>Посмотреть её содержимое</small></span><span class="folder-action-arrow">›</span></button>
+  <button class="folder-action-option" id="folderActionEdit"><span class="folder-action-emoji">✎</span><span><b>Изменить</b><small>Название, значок и цвет</small></span><span class="folder-action-arrow">›</span></button>
+  <button class="folder-action-option" id="folderActionMove"><span class="folder-action-emoji">⇄</span><span><b>Переместить</b><small>Выбрать другое расположение</small></span><span class="folder-action-arrow">›</span></button>
+  <button class="folder-action-option folder-action-delete" id="folderActionDelete"><span class="folder-action-emoji">♲</span><span><b>Удалить</b><small>Переместить папку в корзину</small></span><span class="folder-action-arrow">›</span></button>
+ </div>
+ <div class="actions"><button class="secondary" data-close="folderActionsModal">Закрыть</button></div>
+</div></div>
+<div class="modal-wrap" id="moveModal"><div class="modal">
+ <h3 id="moveModalTitle">Переместить</h3>
+ <p id="moveModalHint" style="color:var(--muted);font-size:12px;line-height:1.5;margin:-7px 0 14px">Выбери папку, в которую нужно переместить элемент.</p>
+ <div class="move-current" id="moveCurrent"></div>
+ <div class="field"><label>Куда переместить</label><div id="moveDestinationList" class="move-destination-list" role="listbox" aria-label="Папки для перемещения"></div></div>
+ <div class="actions"><button class="secondary" data-close="moveModal">Отмена</button><button class="primary" id="confirmMove">Переместить</button></div>
+</div></div>
+<div class="modal-wrap" id="confirmModal"><div class="modal">
+ <h3>Удалить папку?</h3><p style="color:#666;font-size:13px;line-height:1.5">Что сделать с её содержимым? Можно переместить заметки и вложенные папки в текущую папку. Сама папка попадёт в корзину.</p>
+ <div class="actions"><button class="secondary" data-close="confirmModal">Отмена</button><button class="secondary" id="moveContents">Перенести содержимое</button><button class="danger" id="deleteContents">Удалить всё</button></div>
+</div></div>
+<div class="modal-wrap" id="trashModal"><div class="modal">
+ <h3>Корзина</h3><div id="trashItems"></div><div class="actions"><button class="secondary" data-close="trashModal">Закрыть</button><button class="danger" id="emptyTrash">Очистить</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+const colors=['#D6A13B','#428AC4','#399B68','#8B69C7','#D27D69','#82909E','#D66A91','#54AFA5','#D69A65','#7B8794','#B4A0D8','#C4A484'];
+const iconGroups={
+ 'Все':['📁','📂','📚','📖','📓','📔','🗒️','📝','📄','📑','📋','🗃️','🗄️','⭐','❤️','🔖','📅','⏰','✅','☑️','📌','💡','🎯','🔍','💼','💻','📊','💰','🧾','🏠','🛋️','🔧','🛒','🧹','🪴','🌱','🌿','🌸','🌳','🐾','📷','📸','🎥','🎵','🎧','🎮','🎨','✈️','🚗','🚲','🧳','🏕️','🌙','☀️','☁️','🔥','🏋️','🍎','🍳','🎁','🔒','🛡️','🔑','🌍','👥','📦'],
+ 'Документы':['📁','📂','📚','📖','📓','📔','🗒️','📝','📄','📑','📋','🗃️','🗄️','🔖'],
+ 'Работа':['💼','💻','📊','💰','🧾','📈','📉','🗓️','📞','📧','🖨️','🗂️'],
+ 'Дом':['🏠','🛋️','🔧','🛒','🧹','🧺','🪑','🛏️','🚿','🔑','📦','🪴'],
+ 'Творчество':['🎨','📷','📸','🎥','🎵','🎧','🎤','🎹','🎸','✏️','🖌️','🎭'],
+ 'Природа':['🪴','🌱','🌿','🌸','🌳','🌻','🌵','🍀','🌷','🐾','🐈','🐕'],
+ 'Отдых':['✈️','🚗','🚲','🧳','🏕️','🎮','🏋️','⚽','🏖️','🎬','🍿','🎲'],
+ 'Личное':['⭐','❤️','🔒','🛡️','🔑','📅','💡','🎯','🌙','☀️','👥','🎁']
+};
+let db=JSON.parse(localStorage.getItem('shkafchik_db')||'null')||{folders:[],notes:[],trash:[]};db.events=Array.isArray(db.events)?db.events:[];
+let currentFolder=null, editingFolder=null, editingNote=null, viewingNote=null, selectedIcon='📁',selectedColor=colors[2],activeIconTab='Все',trashMode=false,allMode=false;
+const save=()=>localStorage.setItem('shkafchik_db',JSON.stringify(db));
+const formatDate=ts=>ts?new Date(ts).toLocaleString('ru-RU',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+const uid=()=>Math.random().toString(36).slice(2,10);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toast=t=>{let el=$('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2100)};
+let restoringNavigation=false;
+function navSnapshot(){return {folder:currentFolder,all:allMode,music:$('musicScreen').classList.contains('visible'),modal:[...document.querySelectorAll('.modal-wrap.show')].map(x=>x.id)}}
+function pushNavigation(){if(!restoringNavigation)history.pushState({shkafchik:navSnapshot()},'','#app')}
+function openModal(id){$(id).classList.add('show');pushNavigation()}
+function closeModal(id){$(id).classList.remove('show');if(!restoringNavigation)history.replaceState({shkafchik:navSnapshot()},'','#app')}
+window.addEventListener('popstate',e=>{
+ const st=e.state?.shkafchik;
+ restoringNavigation=true;
+ if(st){
+  currentFolder=st.folder && db.folders.some(f=>f.id===st.folder&&!f.deletedAt)?st.folder:null;
+  allMode=!!st.all;
+  document.querySelectorAll('.modal-wrap').forEach(m=>m.classList.toggle('show',(st.modal||[]).includes(m.id)));
+  setBottomTab(st.music?'music':'home');render();
+ }else{
+  document.querySelectorAll('.modal-wrap').forEach(m=>m.classList.remove('show'));
+  if(currentFolder){const path=folderPath(currentFolder);currentFolder=path.length>1?path[path.length-2].id:null}
+  else currentFolder=null;
+  allMode=false;setBottomTab('home');render();
+ }
+ restoringNavigation=false;
+});
+// All dimmed modal overlays close when tapping outside their dialog.
+document.querySelectorAll('.modal-wrap').forEach(overlay=>{
+ overlay.addEventListener('click',e=>{
+  if(e.target===overlay) closeModal(overlay.id);
+ });
+});
+const translations={
+ 'Шкафчик':'Cabinet','Всё важное — в одном месте':'Everything important in one place',
+ 'Главная':'Home','Все заметки':'All notes','Музыка':'Music','В разработке':'Under development','Корзина':'Trash',
+ 'Мои папки':'My folders','Папки':'Folders','Заметки':'Notes',
+ '＋ Папка':'+ Folder','＋ Заметка':'+ Note','＋ Создать':'+ Create',
+ 'Папка':'Folder','Заметка':'Note','Поиск':'Search','Настройки':'Settings',
+ 'Найти заметку или папку':'Find a note or folder',
+ 'Что создаём?':'What would you like to create?',
+ 'Новую папку':'New folder','Новую заметку':'New note',
+ 'Для заметок и других папок':'For notes and other folders',
+ 'Записать мысль или важную информацию':'Write down a thought or important information',
+ 'Отмена':'Cancel','Закрыть':'Close','Сохранить':'Save','Назад':'Back',
+ 'Название':'Title','Название папки':'Folder name','Название заметки':'Note title',
+ 'Содержание':'Content','Обычный текст':'Normal text','Заголовок':'Heading',
+ 'Подзаголовок':'Subheading','Размер выбранного фото':'Selected image size',
+ 'Фото':'Photo','Файл':'File','Автосохранение включено':'Autosave is on',
+ 'Сохранено автоматически':'Saved automatically',
+ 'В корзину':'Move to trash','Редактировать':'Edit',
+ 'Создана:':'Created:','Изменена:':'Modified:',
+ 'Выбрать любой оттенок':'Choose any color',
+ 'Цвет папки':'Folder color','Иконка':'Icon',
+ 'Удалить папку?':'Delete folder?',
+ 'Что сделать с её содержимым? Можно переместить заметки и вложенные папки в текущую папку. Сама папка попадёт в корзину.':'What should happen to its contents? You can move notes and subfolders to the current folder. The folder itself will be moved to the trash.',
+ 'Перенести содержимое':'Move contents','Удалить всё':'Delete all',
+ 'Резервное копирование':'Backup','Язык приложения':'App language',
+ 'Сохрани все папки, заметки, фотографии и вложения в один файл. Его можно будет использовать для восстановления данных.':'Save all folders, notes, photos and attachments in one file. You can use it to restore your data.',
+ 'Создать резервную копию':'Create backup','Скачать файл со всеми данными':'Download a file with all your data',
+ 'Восстановить из копии':'Restore from backup','Заменить текущие данные данными из файла':'Replace current data with data from the file',
+ 'Рекомендуем периодически сохранять резервную копию в отдельное место.':'We recommend keeping a backup in a separate location.',
+ 'В копию войдут все папки, заметки, фотографии и вложения.':'The backup will include all folders, notes, photos and attachments.',
+ 'Все заметки':'All notes','Поиск заметки или папки':'Search notes or folders',
+ '0 папок':'0 folders','заметок':'notes','папок':'folders'
+};
+const originalTextNodes=new WeakMap();
+function applyLanguage(){
+ const lang=localStorage.getItem('shkafchik_language')||'ru';
+ const select=$('languageSelect');
+ if(select && select.value!==lang)select.value=lang;
+ const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+ const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+ nodes.forEach(node=>{
+  const parent=node.parentElement;
+  if(!parent || parent.closest('#noteEditor,#viewBody,.note-card,.folder-card,input,textarea,script,style'))return;
+  if(!originalTextNodes.has(node))originalTextNodes.set(node,node.nodeValue);
+  const original=originalTextNodes.get(node);
+  if(lang==='ru'){node.nodeValue=original;return;}
+  const trim=original.trim();
+  if(translations[trim])node.nodeValue=original.replace(trim,translations[trim]);
+  else if(trim.startsWith('Изменена:'))node.nodeValue=original.replace('Изменена:','Modified:');
+  else if(trim.startsWith('Создана:'))node.nodeValue=original.replace('Создана:','Created:');
+  else node.nodeValue=original;
+ });
+ document.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(el=>{
+  if(!el.dataset.originalPlaceholder)el.dataset.originalPlaceholder=el.placeholder;
+  if(lang==='ru')el.placeholder=el.dataset.originalPlaceholder;
+  else{
+   const map={'Название заметки':'Note title','Например, Дневник':'e.g. Journal','Начни записывать здесь…':'Start writing here…'};
+   el.placeholder=map[el.dataset.originalPlaceholder]||el.dataset.originalPlaceholder;
+  }
+ });
+ document.documentElement.lang=lang;
+}
+$('languageSelect').value=localStorage.getItem('shkafchik_language')||'ru';
+$('languageSelect').onchange=e=>{
+ localStorage.setItem('shkafchik_language',e.target.value);
+ applyLanguage();
+ toast(e.target.value==='en'?'Language changed to English':'Язык изменён на русский');
+};
+
+
+applyLanguage();
+function folderPath(id){let a=[],f=db.folders.find(x=>x.id===id);while(f){a.unshift(f);f=db.folders.find(x=>x.id===f.parentId)}return a}
+function renderBreadcrumb(){
+ let p=folderPath(currentFolder);
+ let html=`<button class="crumb ${!currentFolder?'current':''}" data-go="root">Главная</button>`;
+ p.forEach((f,i)=>html+=`<span>›</span><button class="crumb ${i===p.length-1?'current':''}" data-go="${f.id}">${esc(f.name)}</button>`);
+ $('breadcrumb').innerHTML=html;
+ $('breadcrumb').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{currentFolder=b.dataset.go==='root'?null:b.dataset.go;allMode=false;render();pushNavigation()});
+ const banner=$('locationBanner');
+ const active=p[p.length-1];
+ if(active && !allMode){
+   banner.classList.remove('hidden');
+   banner.style.setProperty('--folder-accent',active.color);
+   banner.innerHTML=`<div class="folder-view-label">СЕЙЧАС ОТКРЫТА ПАПКА</div><div class="location-title"><span class="location-icon" style="background:${active.color}22;color:${active.color}">${active.icon}</span><span>${esc(active.name)}</span></div><div class="location-caption">Содержимое этой папки</div>`;
+ } else { banner.classList.add('hidden'); banner.innerHTML=''; }
+}
+function getSearchFolderIds(){
+ const scope=searchScope;
+ if(scope==='all' || currentFolder===null)return new Set(db.folders.filter(f=>!f.deletedAt).map(f=>f.id));
+ const ids=new Set([currentFolder]);
+ let changed=true;
+ while(changed){
+   changed=false;
+   db.folders.forEach(f=>{
+     if(!f.deletedAt && ids.has(f.parentId) && !ids.has(f.id)){ids.add(f.id);changed=true;}
+   });
+ }
+ return ids;
+}
+function render(){
+ renderBreadcrumb();
+ let q=$('searchInput').value.trim().toLowerCase();
+ let folders=db.folders.filter(f=>f.parentId===currentFolder&&!f.deletedAt);
+ let notes=db.notes.filter(n=>n.folderId===currentFolder&&!n.deletedAt);
+ if(allMode){folders=[];notes=db.notes.filter(n=>!n.deletedAt)}
+ if(q){
+   const scopeIds=getSearchFolderIds();
+   folders=db.folders.filter(f=>!f.deletedAt && scopeIds.has(f.id) && f.name.toLowerCase().includes(q));
+   notes=db.notes.filter(n=>!n.deletedAt && scopeIds.has(n.folderId) && ((n.title||'')+' '+(n.body||'')).toLowerCase().includes(q));
+ }
+ const foldersHeading=$('foldersHeading').parentElement;
+ const notesHeading=$('notesHeading').parentElement;
+ $('foldersHeading').textContent=q?'Найденные папки':'Папки';
+ $('folderGrid').innerHTML=folders.map(f=>{
+   const path=folderPath(f.id).map(x=>x.name);
+   const location=path.length>1?'Главная › '+path.slice(0,-1).map(esc).join(' › '):'Главная';
+   return `<div class="folder" data-folder="${f.id}"><button class="folder-menu" data-menu="${f.id}">⋯</button><div class="folder-icon" style="background:${f.color}22;color:${f.color}">${f.icon}</div><div class="folder-name">${esc(f.name)}</div><div class="folder-meta">${db.folders.filter(x=>x.parentId===f.id&&!x.deletedAt).length} папок · ${db.notes.filter(x=>x.folderId===f.id&&!x.deletedAt).length} заметок</div>${q?`<div class="folder-path">Расположение: ${location}</div>`:''}</div>`;
+ }).join('');
+ $('notesHeading').textContent=q?'Найденные заметки':(allMode?'Все заметки':'Заметки');
+ notes.sort((a,b)=>(Number(!!b.pinned)-Number(!!a.pinned)) || ((b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0)));
+ $('notesList').innerHTML=notes.map(n=>{
+   const path=folderPath(n.folderId).map(x=>x.name);
+   const location=path.length?'Главная › '+path.map(esc).join(' › '):'Главная';
+   return `<div class="note"><button style="flex:1;min-width:0;border:0;background:transparent;text-align:left;padding:0;color:inherit" data-note="${n.id}"><span class="note-content"><span class="note-title">${esc(n.title||'Без названия')}</span><span class="note-preview">${esc(n.body||'Пустая заметка')}</span><span class="note-date">Изменена: ${formatDate(n.updatedAt||n.createdAt)}</span>${q?`<span class="note-path">Расположение: ${location}</span>`:''}</span></button><button class="pin-btn ${n.pinned?'pinned':''}" data-pin="${n.id}" aria-label="Закрепить заметку">${n.pinned?'★':'☆'}</button></div>`;
+ }).join('');
+ const showFolders=folders.length>0;
+ const showNotes=notes.length>0;
+ foldersHeading.style.display=showFolders?'':'none';
+ $('folderGrid').style.display=showFolders?'':'none';
+ notesHeading.style.display=showNotes?'':'none';
+ $('notesList').style.display=showNotes?'':'none';
+ if(q && !showFolders && !showNotes){
+   notesHeading.style.display='';
+   $('notesHeading').textContent='Ничего не найдено';
+ }
+ $('folderGrid').querySelectorAll('[data-folder]').forEach(el=>el.onclick=e=>{
+   if(e.target.closest('[data-menu]'))return;
+   currentFolder=el.dataset.folder;allMode=false;render();pushNavigation();
+ });
+ $('folderGrid').querySelectorAll('[data-menu]').forEach(b=>b.onclick=e=>{e.stopPropagation();folderMenu(b.dataset.menu)});
+ $('notesList').querySelectorAll('[data-note]').forEach(b=>b.onclick=()=>viewNote(b.dataset.note));
+ $('notesList').querySelectorAll('[data-pin]').forEach(b=>b.onclick=()=>{let n=db.notes.find(x=>x.id===b.dataset.pin);n.pinned=!n.pinned;save();render()});
+ $('fab').textContent='＋ Создать';$('fab').onclick=()=>showCreateChoices();
+}
+let folderActionTarget=null;
+function folderMenu(id){
+ const f=db.folders.find(x=>x.id===id);if(!f)return;
+ folderActionTarget=id;
+ $('folderActionIcon').textContent=f.icon;
+ $('folderActionIcon').style.background=f.color+'22';
+ $('folderActionIcon').style.color=f.color;
+ $('folderActionName').textContent=f.name;
+ openModal('folderActionsModal');
+}
+$('folderActionOpen').onclick=()=>{
+ if(!folderActionTarget)return;
+ currentFolder=folderActionTarget;allMode=false;closeModal('folderActionsModal');render();pushNavigation();
+};
+$('folderActionEdit').onclick=()=>{
+ if(!folderActionTarget)return;
+ const id=folderActionTarget;closeModal('folderActionsModal');editFolder(id);
+};
+$('folderActionMove').onclick=()=>{
+ if(!folderActionTarget)return;
+ const id=folderActionTarget;closeModal('folderActionsModal');openMoveDialog('folder',id);
+};
+$('folderActionDelete').onclick=()=>{
+ if(!folderActionTarget)return;
+ editingFolder=folderActionTarget;closeModal('folderActionsModal');openModal('confirmModal');
+};
+function showCreateChoices(){openModal('createChoiceModal')}
+
+$('createFolderChoice').onclick=()=>{closeModal('createChoiceModal');editFolder()};
+$('createNoteChoice').onclick=()=>{closeModal('createChoiceModal');editNote()};
+$('cancelCreateChoice').onclick=()=>closeModal('createChoiceModal');
+
+function editFolder(id=null){editingFolder=id;let f=id?db.folders.find(x=>x.id===id):null;$('folderModalTitle').textContent=f?'Настроить папку':'Новая папка';$('folderName').value=f?.name||'';selectedIcon=f?.icon||'📁';selectedColor=f?.color||colors[2];renderIconPicker();renderPalette();openModal('folderModal')}
+function renderIconPicker(){$('iconTabs').innerHTML=Object.keys(iconGroups).map(t=>`<button class="tab ${t===activeIconTab?'active':''}" data-tab="${t}">${t}</button>`).join('');$('iconTabs').querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{activeIconTab=b.dataset.tab;renderIconPicker()});$('iconGrid').innerHTML=iconGroups[activeIconTab].map(i=>`<button class="icon-choice ${i===selectedIcon?'selected':''}" data-icon="${i}">${i}</button>`).join('');$('iconGrid').querySelectorAll('[data-icon]').forEach(b=>b.onclick=()=>{selectedIcon=b.dataset.icon;renderIconPicker()})}
+function renderPalette(){$('palette').innerHTML=colors.map(c=>`<button class="swatch ${c.toLowerCase()===selectedColor.toLowerCase()?'selected':''}" style="background:${c}" data-color="${c}"></button>`).join('');$('palette').querySelectorAll('[data-color]').forEach(b=>b.onclick=()=>{selectedColor=b.dataset.color;$('customColor').value=selectedColor;renderPalette()});$('customColor').value=selectedColor}
+$('customColor').oninput=e=>{selectedColor=e.target.value;renderPalette()};
+$('saveFolder').onclick=()=>{let name=$('folderName').value.trim();if(!name){toast('Укажи название папки');return}if(editingFolder){let f=db.folders.find(x=>x.id===editingFolder);Object.assign(f,{name,icon:selectedIcon,color:selectedColor})}else db.folders.push({id:uid(),parentId:currentFolder,name,icon:selectedIcon,color:selectedColor,createdAt:Date.now()});save();closeModal('folderModal');render();toast('Папка сохранена')};
+let editorAttachments=[];
+let selectedEditorImage=null;
+let autoSaveTimer=null;
+let savedEditorRange=null;
+
+function plainTextFromEditor(){
+ return $('noteEditor').innerText.replace(/\u00a0/g,' ').trim();
+}
+function rememberEditorSelection(){
+ const sel=window.getSelection();
+ if(sel && sel.rangeCount && $('noteEditor').contains(sel.anchorNode)){
+   savedEditorRange=sel.getRangeAt(0).cloneRange();
+ }
+}
+function restoreEditorSelection(){
+ const sel=window.getSelection();
+ $('noteEditor').focus();
+ if(savedEditorRange){
+   sel.removeAllRanges();
+   sel.addRange(savedEditorRange);
+ }
+}
+function renderAttachments(){
+ $('attachmentList').innerHTML=editorAttachments.map((a,i)=>`<div class="attachment-chip"><span>📎</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${esc(a.name)}</span><button type="button" data-remove-attachment="${i}">✕</button></div>`).join('');
+ $('attachmentList').querySelectorAll('[data-remove-attachment]').forEach(b=>b.onclick=()=>{
+   editorAttachments.splice(Number(b.dataset.removeAttachment),1);
+   renderAttachments();scheduleAutoSave();
+ });
+}
+function updateImageControls(){
+ const slider=$('imageSize'), label=$('imageSizeValue'), controls=$('imageSizeControls');
+ if(selectedEditorImage && selectedEditorImage.isConnected){
+   controls.hidden=false;
+   let w=parseInt(selectedEditorImage.style.width||'100%');
+   slider.disabled=false;slider.value=Math.min(100,Math.max(20,w));label.textContent=slider.value+'%';
+ } else {
+   controls.hidden=true;slider.disabled=true;label.textContent='—';
+ }
+}
+function scheduleAutoSave(){
+ $('autosaveStatus').textContent='Сохранение…';
+ clearTimeout(autoSaveTimer);
+ autoSaveTimer=setTimeout(()=>persistNote(true),700);
+}
+let pendingNewNoteFolderId=undefined;
+function persistNote(silent=false){
+ const title=$('noteTitle').value.trim();
+ const htmlBody=$('noteEditor').innerHTML.trim();
+ const body=plainTextFromEditor();
+ if(!title && !body && !editorAttachments.length)return;
+ const now=Date.now();
+ let n=editingNote?db.notes.find(x=>x.id===editingNote):null;
+ if(!n){
+   n={id:uid(),folderId:pendingNewNoteFolderId!==undefined?pendingNewNoteFolderId:currentFolder,title:title||'Без названия',body,bodyHtml:htmlBody,attachments:editorAttachments.slice(),createdAt:now,updatedAt:now};
+   db.notes.push(n);editingNote=n.id;pendingNewNoteFolderId=undefined;
+ }else{
+   if(!n.createdAt)n.createdAt=n.updatedAt||now;
+   Object.assign(n,{title:title||'Без названия',body,bodyHtml:htmlBody,attachments:editorAttachments.slice(),updatedAt:now});
+ }
+ try{
+   save();
+   $('autosaveStatus').textContent='Сохранено автоматически';
+ }catch(e){
+   $('autosaveStatus').textContent='Не удалось сохранить — возможно, недостаточно памяти';
+   if(!silent)toast('Не удалось сохранить изменения');
+ }
+}
+function editNote(id=null,targetFolderId=undefined){
+ clearTimeout(autoSaveTimer);
+ editingNote=id;
+ pendingNewNoteFolderId=id?undefined:targetFolderId;
+ let n=id?db.notes.find(x=>x.id===id):null;
+ if(id && !n){toast('Не удалось найти заметку');return}
+ $('noteModalTitle').textContent=n?'Редактировать заметку':'Новая заметка';
+ $('noteTitle').value=n?.title||'';
+ if(n?.bodyHtml){$('noteEditor').innerHTML=n.bodyHtml}
+ else{$('noteEditor').innerHTML=esc(n?.body||'').replace(/\n/g,'<br>')}
+ editorAttachments=Array.isArray(n?.attachments)?n.attachments.slice():[];
+ savedEditorRange=null;selectedEditorImage=null;updateImageControls();renderAttachments();
+ $('autosaveStatus').textContent='Автосохранение включено';
+ closeModal('viewModal');openModal('noteModal');
+}
+$('noteTitle').addEventListener('input',scheduleAutoSave);
+function convertTypedMarkerToList(ordered,startNumber=1){
+ const editor=$('noteEditor'),sel=window.getSelection();
+ if(!sel || !sel.rangeCount)return;
+ let node=sel.getRangeAt(0).startContainer;
+ let block=node.nodeType===Node.TEXT_NODE?node.parentElement:node;
+ block=block.closest('#noteEditor p,#noteEditor div');
+ if(!block && (node===editor || editor.contains(node))){
+   block=document.createElement('div');
+   if(node===editor){while(editor.firstChild)block.appendChild(editor.firstChild);editor.appendChild(block);}
+   else{node.parentNode.insertBefore(block,node);block.appendChild(node);}
+ }
+ if(!block || block.classList.contains('check-row'))return;
+ const listTag=ordered?'OL':'UL',prev=block.previousElementSibling;
+ let list=null;
+ if(prev && prev.tagName===listTag)list=prev;
+ else{
+   list=document.createElement(listTag);
+   if(ordered)list.setAttribute('start',String(Math.max(1,startNumber||1)));
+   block.parentNode.insertBefore(list,block);
+ }
+ const li=document.createElement('li');
+ while(block.firstChild)li.appendChild(block.firstChild);
+ list.appendChild(li);block.remove();
+ if(list.nextElementSibling && list.nextElementSibling.tagName===listTag){
+   const following=list.nextElementSibling;
+   while(following.firstChild)list.appendChild(following.firstChild);
+   following.remove();
+ }
+ const r=document.createRange();r.selectNodeContents(li);r.collapse(false);
+ sel.removeAllRanges();sel.addRange(r);savedEditorRange=r.cloneRange();
+}
+$('noteEditor').addEventListener('input',()=>{
+ rememberEditorSelection();
+ // Markdown-like shortcuts: "1. " starts an ordered list; "- " or "* " starts bullets.
+ const sel=window.getSelection();
+ if(sel && sel.rangeCount){
+   const r=sel.getRangeAt(0), node=r.startContainer, offset=r.startOffset;
+   if(node.nodeType===Node.TEXT_NODE && offset===node.textContent.length){
+     const prefix=node.textContent.slice(0,offset);
+     const match=prefix.match(/(^|\n)(\s*)(\d+\.|[-*])\s$/);
+     if(match){
+       const marker=match[0];
+       node.deleteData(offset-marker.length,marker.length);
+       const ordered=/\d+\.$/.test(match[3]);
+       const startNumber=ordered?parseInt(match[3],10):1;
+       convertTypedMarkerToList(ordered,startNumber);
+       rememberEditorSelection();
+     }
+   }
+ }
+ scheduleAutoSave();
+});
+$('noteEditor').addEventListener('keyup',rememberEditorSelection);
+$('noteEditor').addEventListener('mouseup',rememberEditorSelection);
+$('noteEditor').addEventListener('touchend',()=>setTimeout(rememberEditorSelection,0));
+$('noteEditor').addEventListener('click',e=>{
+ if(e.target.tagName==='IMG'){
+   if(selectedEditorImage)selectedEditorImage.classList.remove('selected-image');
+   selectedEditorImage=e.target;selectedEditorImage.classList.add('selected-image');
+   updateImageControls();
+ }else if(selectedEditorImage){
+   selectedEditorImage.classList.remove('selected-image');selectedEditorImage=null;updateImageControls();
+ }
+ rememberEditorSelection();
+});
+$('imageSize').oninput=e=>{
+ if(selectedEditorImage){
+   selectedEditorImage.style.width=e.target.value+'%';
+   selectedEditorImage.style.height='auto';
+   $('imageSizeValue').textContent=e.target.value+'%';
+   scheduleAutoSave();
+ }
+};
+document.querySelectorAll('#editorToolbar [data-cmd]').forEach(b=>{
+ b.addEventListener('mousedown',e=>e.preventDefault());
+ b.onclick=()=>{
+   restoreEditorSelection();
+   document.execCommand(b.dataset.cmd,false,null);
+   rememberEditorSelection();scheduleAutoSave();
+ };
+});
+function currentEditorBlock(){
+ const sel=window.getSelection();
+ if(!sel || !sel.rangeCount)return null;
+ let el=sel.getRangeAt(0).startContainer;
+ if(el.nodeType===Node.TEXT_NODE)el=el.parentElement;
+ return el && el.closest('#noteEditor p,#noteEditor h1,#noteEditor h2,#noteEditor h3,#noteEditor div,#noteEditor li');
+}
+function applyBlockFormat(tag){
+ restoreEditorSelection();
+ const block=currentEditorBlock();
+ if(!block){scheduleAutoSave();return}
+ // Keep list item semantics intact so numbering never restarts at every row.
+ if(block.tagName==='LI'){
+   if(tag==='h2'){block.style.fontSize='1.35em';block.style.fontWeight='700'}
+   else if(tag==='h3'){block.style.fontSize='1.15em';block.style.fontWeight='650'}
+   else{block.style.fontSize='';block.style.fontWeight=''}
+ }else{
+   const target=tag==='p'?'p':tag;
+   if(block.tagName.toLowerCase()!==target){
+     const replacement=document.createElement(target);
+     while(block.firstChild)replacement.appendChild(block.firstChild);
+     block.replaceWith(replacement);
+     const sel=window.getSelection(),r=document.createRange();
+     r.selectNodeContents(replacement);r.collapse(false);
+     sel.removeAllRanges();sel.addRange(r);
+   }
+ }
+ rememberEditorSelection();scheduleAutoSave();
+}
+$('blockFormat').onchange=e=>applyBlockFormat(e.target.value);
+function makeChecklistRow(){
+ const row=document.createElement('div');row.className='check-row';
+ const box=document.createElement('input');box.type='checkbox';box.setAttribute('contenteditable','false');
+ const text=document.createElement('span');text.className='check-text';text.setAttribute('contenteditable','true');
+ row.append(box,text);
+ return row;
+}
+function focusChecklistText(text){
+ const sel=window.getSelection(),range=document.createRange();
+ range.selectNodeContents(text);range.collapse(false);
+ sel.removeAllRanges();sel.addRange(range);
+ $('noteEditor').focus();rememberEditorSelection();
+}
+$('checklistBtn').onclick=()=>{
+ const editor=$('noteEditor');restoreEditorSelection();
+ const sel=window.getSelection();
+ let current=sel&&sel.rangeCount?sel.getRangeAt(0).startContainer:null;
+ let node=current&&current.nodeType===Node.TEXT_NODE?current.parentElement:current;
+ const currentRow=node&&node.closest?node.closest('.check-row'):null;
+ const row=makeChecklistRow();
+ if(currentRow&&editor.contains(currentRow)){
+   currentRow.insertAdjacentElement('afterend',row);
+ }else{
+   const range=sel&&sel.rangeCount?sel.getRangeAt(0):null;
+   if(range&&editor.contains(range.startContainer)){
+     range.deleteContents();range.insertNode(row);
+   }else editor.append(row);
+ }
+ focusChecklistText(row.querySelector('.check-text'));scheduleAutoSave();
+};
+// Enter creates the next checkbox row; Shift+Enter adds a line within the same item.
+$('noteEditor').addEventListener('keydown',e=>{
+ if(e.key!=='Enter')return;
+ const sel=window.getSelection();if(!sel||!sel.rangeCount)return;
+ let node=sel.getRangeAt(0).startContainer;
+ if(node.nodeType===Node.TEXT_NODE)node=node.parentElement;
+ const text=node&&node.closest?node.closest('.check-text'):null;
+ if(!text||!$('noteEditor').contains(text))return;
+ e.preventDefault();
+ if(e.shiftKey){
+   document.execCommand('insertLineBreak',false,null);
+   rememberEditorSelection();scheduleAutoSave();return;
+ }
+ const row=text.closest('.check-row'),next=makeChecklistRow();
+ row.insertAdjacentElement('afterend',next);
+ focusChecklistText(next.querySelector('.check-text'));scheduleAutoSave();
+});
+function insertImageFile(file){
+ if(!file)return;
+ if(!file.type.startsWith('image/')){toast('Это не изображение');return}
+ if(file.size>15*1024*1024){toast('Фото слишком большое (максимум 15 МБ)');return}
+ const reader=new FileReader();
+ reader.onload=()=>{
+   const source=reader.result,image=new Image();
+   image.onload=()=>{
+     const maxSide=1800,scale=Math.min(1,maxSide/Math.max(image.naturalWidth,image.naturalHeight));
+     const canvas=document.createElement('canvas');
+     canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));
+     canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));
+     canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+     const dataUrl=file.type==='image/png'?canvas.toDataURL('image/png'):canvas.toDataURL('image/jpeg',0.84);
+     const editor=$('noteEditor');editor.focus();
+     const img=document.createElement('img');img.src=dataUrl;img.alt=file.name;img.style.width='100%';
+     let range=null;const sel=window.getSelection();
+     if(savedEditorRange && editor.contains(savedEditorRange.startContainer))range=savedEditorRange.cloneRange();
+     else if(sel && sel.rangeCount && editor.contains(sel.anchorNode))range=sel.getRangeAt(0).cloneRange();
+     if(range){
+       range.deleteContents();range.insertNode(img);
+       const after=document.createElement('div');after.appendChild(document.createElement('br'));img.after(after);
+       const nextRange=document.createRange();nextRange.setStart(after,0);nextRange.collapse(true);
+       if(sel){sel.removeAllRanges();sel.addRange(nextRange)}savedEditorRange=nextRange.cloneRange();
+     }else{
+       editor.appendChild(img);
+       const after=document.createElement('div');after.appendChild(document.createElement('br'));editor.appendChild(after);
+       const nextRange=document.createRange();nextRange.setStart(after,0);nextRange.collapse(true);
+       if(sel){sel.removeAllRanges();sel.addRange(nextRange)}savedEditorRange=nextRange.cloneRange();
+     }
+     if(selectedEditorImage)selectedEditorImage.classList.remove('selected-image');
+     selectedEditorImage=img;img.classList.add('selected-image');
+     updateImageControls();scheduleAutoSave();toast('Фотография вставлена в текст');
+   };
+   image.onerror=()=>toast('Не удалось обработать фотографию');image.src=source;
+ };
+ reader.onerror=()=>toast('Не удалось прочитать фотографию');reader.readAsDataURL(file);
+}
+$('imageBtn').onclick=()=>{
+ rememberEditorSelection();
+ $('imageInput').click();
+};
+$('imageInput').onchange=e=>{
+ const file=e.target.files && e.target.files[0];
+ e.target.value='';
+ insertImageFile(file);
+};
+$('attachBtn').onclick=()=>{
+ rememberEditorSelection();
+ $('fileInput').click();
+};
+$('fileInput').onchange=e=>{
+ const files=Array.from(e.target.files||[]);e.target.value='';
+ files.forEach(file=>{
+   // Images are always embedded inline, even if selected through the generic
+   // Android file picker. Only non-image documents become attachment chips.
+   if(file.type.startsWith('image/')){
+     insertImageFile(file);
+     return;
+   }
+   if(file.size>1200000){toast('Файл '+file.name+' слишком большой для этой версии');return}
+   const reader=new FileReader();
+   reader.onload=()=>{editorAttachments.push({name:file.name,type:file.type,data:reader.result,size:file.size});renderAttachments();scheduleAutoSave()};
+   reader.readAsDataURL(file);
+ });
+};
+$('saveNote').onclick=()=>{
+ const title=$('noteTitle').value.trim(),body=plainTextFromEditor();
+ if(!title&&!body&&!editorAttachments.length){toast('Добавь текст или файл');return}
+ clearTimeout(autoSaveTimer);
+ persistNote(false);
+ closeModal('noteModal');render();toast('Заметка сохранена');
+};
+let moveTarget=null;
+function openMoveDialog(type,id){
+ moveTarget={type,id};
+ const isFolder=type==='folder';
+ const item=isFolder?db.folders.find(x=>x.id===id):db.notes.find(x=>x.id===id);
+ if(!item)return;
+ $('moveModalTitle').textContent=isFolder?'Переместить папку':'Переместить заметку';
+ $('moveModalHint').textContent=isFolder?'Выбери новое место для папки. Все её заметки и вложенные папки переместятся вместе с ней.':'Выбери папку, в которой должна находиться эта заметка.';
+ const oldPath=isFolder?folderPath(item.parentId):folderPath(item.folderId);
+ $('moveCurrent').innerHTML=`Сейчас находится: <b>${oldPath.length?'Главная › '+oldPath.map(x=>esc(x.name)).join(' › '):'Главная'}</b>`;
+ const excluded=isFolder?new Set([id,...descendants(id)]):new Set();
+ const options=[{value:'__root__',label:'⌂  Главная',depth:0}];
+ function addChildren(parent,depth){
+   db.folders.filter(f=>f.parentId===parent&&!f.deletedAt&&!excluded.has(f.id)).sort((a,b)=>a.name.localeCompare(b.name,'ru')).forEach(f=>{
+     options.push({value:f.id,label:f.name,depth});
+     addChildren(f.id,depth+1);
+   });
+ }
+ addChildren(null,1);
+ moveDestinationOptions=options.map(o=>({...o,path:o.value==='__root__'?'':folderPath(o.value).map(x=>x.name).join(' › ')}));
+ selectedMoveDestination='__root__';
+ if(isFolder && item.parentId && !excluded.has(item.parentId))selectedMoveDestination=item.parentId;
+ if(!isFolder && item.folderId && !excluded.has(item.folderId))selectedMoveDestination=item.folderId;
+ renderMoveDestinationList();
+ openModal('moveModal');
+}
+let moveDestinationOptions=[],selectedMoveDestination='__root__';
+function renderMoveDestinationList(){
+ $('moveDestinationList').innerHTML=moveDestinationOptions.map(o=>`
+ <button type="button" class="move-destination-option ${o.value===selectedMoveDestination?'selected':''}" data-move-destination="${esc(o.value)}" role="option" aria-selected="${o.value===selectedMoveDestination}">
+  <span class="move-folder-icon">${o.value==='__root__'?'⌂':'📁'}</span>
+  <span class="move-folder-name">${esc(o.value==='__root__'?'Главная':o.label)}${o.path?`<small class="move-folder-path">${esc(o.path)}</small>`:''}</span>
+  <span class="move-check"></span>
+ </button>`).join('');
+ $('moveDestinationList').querySelectorAll('[data-move-destination]').forEach(b=>b.onclick=()=>{
+  selectedMoveDestination=b.dataset.moveDestination;renderMoveDestinationList();
+ });
+}
+$('confirmMove').onclick=()=>{
+ if(!moveTarget)return;
+ const destination=selectedMoveDestination==='__root__'?null:selectedMoveDestination;
+ if(moveTarget.type==='folder'){
+   const f=db.folders.find(x=>x.id===moveTarget.id);
+   if(destination===f.id || (destination && descendants(f.id).includes(destination))){toast('Нельзя переместить папку внутрь самой себя');return}
+   f.parentId=destination;
+ }else{
+   const n=db.notes.find(x=>x.id===moveTarget.id);n.folderId=destination;
+ }
+ save();closeModal('moveModal');closeModal('viewModal');moveTarget=null;render();toast('Перемещено');
+};
+function viewNote(id){
+ viewingNote=id;let n=db.notes.find(x=>x.id===id);
+ $('viewTitle').textContent=n.title||'Без названия';
+ $('viewDates').innerHTML=`<div>Создана: <strong style="color:#555;font-weight:600">${formatDate(n.createdAt||n.updatedAt)}</strong></div><div>Изменена: <strong style="color:#555;font-weight:600">${formatDate(n.updatedAt||n.createdAt)}</strong></div>`;
+ if(n.bodyHtml)$('viewBody').innerHTML=n.bodyHtml;else $('viewBody').textContent=n.body||'Пустая заметка';
+ $('viewAttachments').innerHTML=(n.attachments||[]).map(a=>`<a href="${a.data}" download="${esc(a.name)}">📎 ${esc(a.name)} · Скачать</a>`).join('');
+ openModal('viewModal');
+}
+$('closeView').onclick=()=>closeModal('viewModal');
+// Close the note preview when the user taps the dimmed area outside the card.
+$('viewModal').addEventListener('click',e=>{
+ if(e.target===$('viewModal')) closeModal('viewModal');
+});
+$('editNote').onclick=()=>editNote(viewingNote);
+$('moveNote').onclick=()=>openMoveDialog('note',viewingNote);
+$('deleteNote').onclick=()=>openModal('deleteNoteConfirmModal');
+$('confirmDeleteNote').onclick=()=>{
+ const n=db.notes.find(x=>x.id===viewingNote);
+ if(!n)return;
+ n.deletedAt=Date.now();db.trash.push({type:'note',id:n.id,deletedAt:n.deletedAt});
+ save();closeModal('deleteNoteConfirmModal');closeModal('viewModal');render();toast('Перемещено в корзину');
+};
+function descendants(id){let ids=[id];db.folders.filter(f=>f.parentId===id).forEach(f=>ids.push(...descendants(f.id)));return ids}
+$('moveContents').onclick=()=>{let f=db.folders.find(x=>x.id===editingFolder);db.folders.filter(x=>x.parentId===editingFolder).forEach(x=>x.parentId=f.parentId);db.notes.filter(x=>x.folderId===editingFolder).forEach(x=>x.folderId=f.parentId);f.deletedAt=Date.now();db.trash.push({type:'folder',id:f.id,deletedAt:f.deletedAt});save();closeModal('confirmModal');render();toast('Содержимое перенесено')};
+$('deleteContents').onclick=()=>{let ids=descendants(editingFolder),now=Date.now();ids.forEach(id=>{let f=db.folders.find(x=>x.id===id);if(f)f.deletedAt=now;db.trash.push({type:'folder',id,deletedAt:now})});db.notes.filter(n=>ids.includes(n.folderId)).forEach(n=>{n.deletedAt=now;db.trash.push({type:'note',id:n.id,deletedAt:now})});save();closeModal('confirmModal');if(ids.includes(currentFolder))currentFolder=null;render();toast('Перемещено в корзину')};
+function renderTrash(){let items=db.trash.filter(t=>Date.now()-t.deletedAt<30*86400000);$('trashItems').innerHTML=items.map(t=>{let o=t.type==='note'?db.notes.find(x=>x.id===t.id):db.folders.find(x=>x.id===t.id);return o?`<div class="note"><span>${t.type==='note'?'▤':'📁'}</span><span style="flex:1">${esc(o.title||o.name)}</span><button class="small-action" data-restore="${t.type}:${t.id}">Восстановить</button></div>`:''}).join('')||'<div class="empty">Корзина пуста</div>';$('trashItems').querySelectorAll('[data-restore]').forEach(b=>b.onclick=()=>{let [type,id]=b.dataset.restore.split(':');let o=(type==='note'?db.notes:db.folders).find(x=>x.id===id);if(o){delete o.deletedAt;db.trash=db.trash.filter(t=>!(t.type===type&&t.id===id));save();renderTrash();render();toast('Восстановлено')}})}
+$('emptyTrash').onclick=()=>{if(!confirm('Удалить содержимое корзины окончательно?'))return;let ids=db.trash;db.notes=db.notes.filter(n=>!ids.some(t=>t.type==='note'&&t.id===n.id));db.folders=db.folders.filter(f=>!ids.some(t=>t.type==='folder'&&t.id===f.id));db.trash=[];save();renderTrash();render();toast('Корзина очищена')};
+let calendarCursor=new Date();calendarCursor.setDate(1);
+let calendarSelected=new Date();
+function setBottomTab(tab){
+ const music=tab==='music',calendar=tab==='calendar';
+ $('musicScreen').classList.toggle('visible',music);
+ $('calendarScreen').classList.toggle('visible',calendar);
+ $('fab').style.display=(music||calendar)?'none':'';
+ $('homeNav').classList.toggle('active',tab==='home');
+ $('musicNav').classList.toggle('active',music);
+ $('calendarNav').classList.toggle('active',calendar);
+}
+function dayKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function updateCalendarNavDate(){
+ const now=new Date();
+ $('calendarNavDay').textContent=String(now.getDate());
+ $('calendarNavMonth').textContent=now.toLocaleDateString('ru-RU',{month:'short'}).replace('.','').toUpperCase();
+}
+updateCalendarNavDate();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateCalendarNavDate()});
+window.addEventListener('focus',updateCalendarNavDate);
+
+// Android native notifications and best-effort calendar reminders.
+// The HTML bridge can display notifications, but cannot register persistent OS alarms.
+function showNativeNotification(title,message){
+ try{
+  if(window.AndroidAPI&&typeof window.AndroidAPI.showNotification==='function'){
+   window.AndroidAPI.showNotification(String(title||'Шкафчик'),String(message||''));
+   return true;
+  }
+ }catch(err){console.warn('Android notification error',err)}
+ return false;
+}
+window.addEventListener('notificationResult',function(event){
+ const result=event.detail||{};
+ const status=$('notificationStatus');
+ if(status){
+  if(result.success)status.textContent='Android успешно принял уведомление.';
+  else if(result.error==='permission_denied')status.textContent='Android запретил уведомления. Проверь разрешение в настройках телефона.';
+  else status.textContent='Не удалось отправить уведомление: '+(result.error||'неизвестная ошибка');
+ }
+});
+$('testNotificationBtn').onclick=()=>{
+ const ok=showNativeNotification('Шкафчик','Уведомления работают. Можно настраивать напоминания о событиях.');
+ $('notificationStatus').textContent=ok?'Запрос отправлен Android. Подожди несколько секунд.':'Android API не найден. Открой APK, собранный конструктором с включёнными уведомлениями.';
+};
+function scanCalendarReminders(){
+ if(!Array.isArray(db.events)||!db.events.length)return;
+ const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12);
+ const sent=Array.isArray(db.notificationSent)?db.notificationSent:[];
+ let changed=false;
+ for(let offset=0;offset<=1;offset++){
+  const day=new Date(today.getFullYear(),today.getMonth(),today.getDate()+offset,12);
+  const keyDate=dayKey(day);
+  for(const ev of db.events){
+   if(!eventOccursOn(ev,day))continue;
+   const parts=(ev.time||'09:00').split(':').map(Number);
+   const eventAt=new Date(day.getFullYear(),day.getMonth(),day.getDate(),parts[0]||0,parts[1]||0);
+   const remindAt=new Date(eventAt.getTime()-(Number(ev.reminder)||0)*60000);
+   const dedupe=String(ev.id)+'|'+keyDate;
+   if(sent.includes(dedupe))continue;
+   // Send only near the reminder moment; do not fire stale reminders after an event.
+   if(now>=remindAt && now<=new Date(eventAt.getTime()+5*60000)){
+    const message=[ev.description||'', 'Время: '+(ev.time||'09:00')].filter(Boolean).join('\n');
+    if(showNativeNotification(ev.title||'Напоминание',message)){
+     sent.push(dedupe);changed=true;
+    }
+   }
+  }
+ }
+ if(changed){db.notificationSent=sent.slice(-500);save();}
+}
+let reminderScanTimer=null;
+function startReminderScanner(){
+ if(reminderScanTimer)clearInterval(reminderScanTimer);
+ scanCalendarReminders();
+ reminderScanTimer=setInterval(scanCalendarReminders,15000);
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)scanCalendarReminders()});
+window.addEventListener('focus',scanCalendarReminders);
+
+function eventOccursOn(ev,date){
+ const base=new Date(ev.date+'T12:00:00'), target=new Date(date.getFullYear(),date.getMonth(),date.getDate(),12);
+ if(target<new Date(base.getFullYear(),base.getMonth(),base.getDate(),12))return false;
+ const diff=Math.round((target-base)/86400000);
+ if(ev.repeat==='daily')return true;
+ if(ev.repeat==='weekly')return diff%7===0;
+ if(ev.repeat==='monthly')return target.getDate()===base.getDate();
+ if(ev.repeat==='yearly')return target.getDate()===base.getDate()&&target.getMonth()===base.getMonth();
+ return diff===0;
+}
+function renderCalendar(){
+ const y=calendarCursor.getFullYear(),m=calendarCursor.getMonth();
+ $('calendarMonth').textContent=calendarCursor.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+ const first=new Date(y,m,1),offset=(first.getDay()+6)%7,start=new Date(y,m,1-offset);
+ const today=dayKey(new Date()),selected=dayKey(calendarSelected);
+ const dates=Array.from({length:42},(_,i)=>new Date(start.getFullYear(),start.getMonth(),start.getDate()+i));
+ $('calendarDays').innerHTML=dates.map(d=>{
+   const key=dayKey(d),dayNotes=db.notes.filter(n=>!n.deletedAt&&[n.createdAt,n.updatedAt].some(t=>t&&dayKey(new Date(t))===key));
+   const dayEvents=db.events.filter(ev=>eventOccursOn(ev,d));
+   const visibleEventMarkers=dayEvents.filter(ev=>ev.color!=='none').slice(0,10);
+   const visibleNoteMarkers=dayNotes.slice(0,10);
+   const eventMarkers=visibleEventMarkers.map(ev=>`<i class="calendar-marker-event" style="background:${/^#[0-9a-f]{6}$/i.test(ev.color||'')?ev.color:'#D69B45'}"></i>`).join('');
+   const noteMarkers=visibleNoteMarkers.map(()=>'<i class="calendar-marker-note"></i>').join('');
+   const markers=`<span class="calendar-markers"><span class="calendar-marker-row">${eventMarkers}</span><span class="calendar-marker-row">${noteMarkers}</span></span>`;
+   return `<button class="calendar-day ${d.getMonth()!==m?'muted':''} ${key===today?'today':''} ${key===selected?'selected':''}" data-day="${key}">${d.getDate()}${markers}</button>`;
+ }).join('');
+ $('calendarDays').querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{
+   const [yy,mm,dd]=b.dataset.day.split('-').map(Number);calendarSelected=new Date(yy,mm-1,dd);calendarCursor=new Date(yy,mm-1,1);renderCalendar();
+ });
+ const key=dayKey(calendarSelected);
+ const matches=db.notes.filter(n=>!n.deletedAt&&[n.createdAt,n.updatedAt].some(t=>t&&dayKey(new Date(t))===key));
+ const dayEvents=db.events.filter(ev=>eventOccursOn(ev,calendarSelected)).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+ $('calendarDayNotes').innerHTML=`<div class="calendar-day-title">${calendarSelected.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}</div>`+
+ (dayEvents.length?dayEvents.map(ev=>`<button class="calendar-event" data-calendar-event="${ev.id}"><i class="event-dot" style="--event-color:${ev.color==="none"?"transparent":(/^#[0-9a-f]{6}$/i.test(ev.color||"")?ev.color:"#D69B45")}"></i><span class="event-main"><strong>${esc(ev.title)}</strong><small>${esc(ev.time||'Весь день')}${ev.repeat&&ev.repeat!=='none'?' · '+({daily:'ежедневно',weekly:'еженедельно',monthly:'ежемесячно',yearly:'ежегодно'}[ev.repeat]):''}</small></span></button>`).join(''):'')+
+ (matches.length?matches.map(n=>`<button class="calendar-note" data-calendar-note="${n.id}"><span>📝 ${esc(n.title||'Без названия')}</span><small>${n.updatedAt&&dayKey(new Date(n.updatedAt))===key?'Изменена':'Создана'}</small></button>`).join(''):'')+
+ (!dayEvents.length&&!matches.length?'<div class="empty">На эту дату заметок и событий нет</div>':'');
+ $('calendarDayNotes').querySelectorAll('[data-calendar-note]').forEach(b=>b.onclick=()=>viewNote(b.dataset.calendarNote));
+ $('calendarDayNotes').querySelectorAll('[data-calendar-event]').forEach(b=>b.onclick=()=>editCalendarEvent(b.dataset.calendarEvent));
+}
+let editingCalendarEvent=null;
+let selectedEventColor='#D69B45';
+function setEventColor(color){
+ selectedEventColor=color;
+ $('eventColorPicker').querySelectorAll('[data-event-color]').forEach(b=>b.classList.toggle('selected',b.dataset.eventColor===color));
+}
+$('eventColorPicker').querySelectorAll('[data-event-color]').forEach(b=>b.onclick=()=>setEventColor(b.dataset.eventColor));
+
+function editCalendarEvent(id){
+ const ev=id?db.events.find(x=>x.id===id):null;editingCalendarEvent=id||null;
+ $('eventModalTitle').textContent=ev?'Изменить событие':'Новое событие';
+ $('eventTitle').value=ev?.title||'';
+ $('eventDate').value=ev?.date||dayKey(calendarSelected);
+ $('eventTime').value=ev?.time||'09:00';
+ $('eventDescription').value=ev?.description||'';
+ $('eventRepeat').value=ev?.repeat||'none';
+ $('eventReminder').value=String(ev?.reminder??0);
+ setEventColor(ev?.color??'#D69B45');
+ $('deleteEvent').style.display=ev?'block':'none';
+ openModal('eventModal');
+}
+let selectedCalendarNoteFolder='__root__';
+let calendarNoteFolderOptions=[];
+function renderCalendarNoteFolderList(){
+ $('calendarNoteFolderList').innerHTML=calendarNoteFolderOptions.map(o=>`
+ <button type="button" class="move-destination-option ${o.value===selectedCalendarNoteFolder?'selected':''}" data-calendar-note-folder="${esc(o.value)}" role="option" aria-selected="${o.value===selectedCalendarNoteFolder}">
+  <span class="move-folder-icon">${o.value==='__root__'?'⌂':'📁'}</span>
+  <span class="move-folder-name">${esc(o.value==='__root__'?'Главная':o.label)}${o.path?`<small class="move-folder-path">${esc(o.path)}</small>`:''}</span>
+  <span class="move-check"></span>
+ </button>`).join('');
+ $('calendarNoteFolderList').querySelectorAll('[data-calendar-note-folder]').forEach(b=>b.onclick=()=>{
+  selectedCalendarNoteFolder=b.dataset.calendarNoteFolder;renderCalendarNoteFolderList();
+ });
+}
+function openCalendarNoteFolderPicker(){
+ const options=[{value:'__root__',label:'Главная',path:''}];
+ function addChildren(parent){
+  db.folders.filter(f=>f.parentId===parent&&!f.deletedAt).sort((a,b)=>a.name.localeCompare(b.name,'ru')).forEach(f=>{
+   options.push({value:f.id,label:f.name,path:folderPath(f.id).map(x=>x.name).join(' › ')});
+   addChildren(f.id);
+  });
+ }
+ addChildren(null);
+ calendarNoteFolderOptions=options;
+ selectedCalendarNoteFolder='__root__';
+ renderCalendarNoteFolderList();
+ openModal('calendarNoteFolderModal');
+}
+$('addCalendarNote').onclick=openCalendarNoteFolderPicker;
+$('cancelCalendarNoteFolder').onclick=()=>closeModal('calendarNoteFolderModal');
+$('confirmCalendarNoteFolder').onclick=()=>{
+ const folderId=selectedCalendarNoteFolder==='__root__'?null:selectedCalendarNoteFolder;
+ closeModal('calendarNoteFolderModal');
+ editNote(null,folderId);
+};
+$('addCalendarEvent').onclick=()=>editCalendarEvent(null);
+$('cancelEvent').onclick=()=>closeModal('eventModal');
+$('saveEvent').onclick=()=>{
+ const title=$('eventTitle').value.trim(),date=$('eventDate').value;
+ if(!title){toast('Введи название события');$('eventTitle').focus();return}
+ if(!date){toast('Выбери дату события');return}
+ const data={title,date,time:$('eventTime').value,description:$('eventDescription').value.trim(),repeat:$('eventRepeat').value,reminder:Number($('eventReminder').value),color:selectedEventColor};
+ if(editingCalendarEvent){const ev=db.events.find(x=>x.id===editingCalendarEvent);if(ev)Object.assign(ev,data)}
+ else db.events.push({id:uid(),...data,createdAt:Date.now()});
+ save();scanCalendarReminders();const [yy,mm,dd]=date.split('-').map(Number);calendarSelected=new Date(yy,mm-1,dd);calendarCursor=new Date(yy,mm-1,1);
+ closeModal('eventModal');renderCalendar();toast('Событие сохранено');
+};
+$('deleteEvent').onclick=()=>{
+ if(!editingCalendarEvent||!confirm('Удалить это событие?'))return;
+ db.events=db.events.filter(x=>x.id!==editingCalendarEvent);save();closeModal('eventModal');renderCalendar();toast('Событие удалено');
+};
+$('calendarPrev').onclick=()=>{calendarCursor.setMonth(calendarCursor.getMonth()-1);renderCalendar()};
+$('calendarNext').onclick=()=>{calendarCursor.setMonth(calendarCursor.getMonth()+1);renderCalendar()};
+$('calendarNav').onclick=()=>{setBottomTab('calendar');renderCalendar();pushNavigation()};
+$('homeNav').onclick=()=>{setBottomTab('home');allMode=false;currentFolder=null;render();pushNavigation()};
+$('musicNav').onclick=()=>{setBottomTab('music');pushNavigation()};
+$('openTrashSettings').onclick=()=>{closeModal('settingsModal');renderTrash();openModal('trashModal')};
+$('addFolderTop').onclick=()=>editFolder();$('addNoteTop').onclick=()=>editNote();let searchScope='current';
+$('searchInput').oninput=render;
+function updateScopePicker(){
+ $('scopeLabel').textContent=searchScope==='all'?'Во всех папках':'В этой области';
+ $('scopeMenu').querySelectorAll('[data-scope]').forEach(b=>b.classList.toggle('active',b.dataset.scope===searchScope));
+}
+$('scopeTrigger').onclick=e=>{
+ e.stopPropagation();
+ const menu=$('scopeMenu'),opening=menu.classList.contains('hidden');
+ menu.classList.toggle('hidden');
+ $('scopeTrigger').setAttribute('aria-expanded',String(opening));
+};
+$('scopeMenu').querySelectorAll('[data-scope]').forEach(b=>b.onclick=e=>{
+ e.stopPropagation();searchScope=b.dataset.scope;updateScopePicker();
+ $('scopeMenu').classList.add('hidden');$('scopeTrigger').setAttribute('aria-expanded','false');render();
+});
+document.addEventListener('click',e=>{
+ if(!e.target.closest('#scopePicker')){$('scopeMenu').classList.add('hidden');$('scopeTrigger').setAttribute('aria-expanded','false')}
+});
+$('searchToggle').onclick=()=>{const bar=$('searchBar');bar.classList.toggle('hidden');if(!bar.classList.contains('hidden'))$('searchInput').focus();else{$('searchInput').value='';searchScope='current';updateScopePicker();render()}};
+$('settingsBtn').onclick=()=>{ $('backupStatus').textContent='В копию войдут все папки, заметки, фотографии и вложения.'; $('languageSelect').value=localStorage.getItem('shkafchik_language')||'ru'; openModal('settingsModal'); applyLanguage() };
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+
+function makeBackup(){
+ const payload={
+  app:'Шкафчик',
+  backupFormat:1,
+  createdAt:new Date().toISOString(),
+  data:db
+ };
+ const json=JSON.stringify(payload);
+ const stamp=new Date().toISOString().replace(/[:.]/g,'-');
+ const filename='shkafchik-backup-'+stamp+'.json';
+ if(window.AndroidAPI && typeof window.AndroidAPI.saveBackup==='function'){
+  window.AndroidAPI.saveBackup(filename,json);
+  $('backupStatus').textContent='Выбери место для сохранения резервной копии.';
+  return;
+ }
+ const blob=new Blob([json],{type:'application/json'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+ a.href=url;a.download=filename;
+ document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1500);
+ $('backupStatus').textContent='Резервная копия подготовлена. Сохрани файл в надёжном месте.';
+ toast('Резервная копия создана');
+}
+function validateBackup(obj){
+ if(!obj || obj.app!=='Шкафчик' || !obj.data)return false;
+ const d=obj.data;
+ return Array.isArray(d.folders) && Array.isArray(d.notes) && Array.isArray(d.trash);
+}
+$('exportBackupBtn').onclick=makeBackup;
+$('importBackupBtn').onclick=()=>{
+ $('backupFileInput').value='';
+ $('backupFileInput').click();
+};
+$('backupFileInput').onchange=async e=>{
+ const file=e.target.files && e.target.files[0];
+ if(!file)return;
+ try{
+  const parsed=JSON.parse(await file.text());
+  if(!validateBackup(parsed)){
+   $('backupStatus').textContent='Файл не похож на резервную копию «Шкафчика». Данные не изменены.';
+   toast('Неподходящий файл резервной копии');return;
+  }
+  const counts=`${parsed.data.folders.length} папок и ${parsed.data.notes.length} заметок`;
+  if(!confirm(`Восстановить резервную копию (${counts})? Текущие данные будут заменены. Рекомендуем сначала скачать их копию.`))return;
+  db={
+   folders:parsed.data.folders,
+   notes:parsed.data.notes,
+   trash:parsed.data.trash
+  };
+  localStorage.setItem('shkafchik_db',JSON.stringify(db));
+  currentFolder=null;editingFolder=null;editingNote=null;viewingNote=null;allMode=false;trashMode=false;
+  render();
+  $('backupStatus').textContent='Данные успешно восстановлены из резервной копии.';
+  toast('Резервная копия восстановлена');
+  closeModal('settingsModal');
+ }catch(err){
+  $('backupStatus').textContent='Не удалось прочитать файл. Проверь, что это целая резервная копия Шкафчика.';
+  toast('Ошибка чтения резервной копии');
+ }
+};
+
+function cleanupTrash(){let cutoff=Date.now()-30*86400000;let old=db.trash.filter(t=>t.deletedAt<cutoff);old.forEach(t=>{if(t.type==='note')db.notes=db.notes.filter(n=>n.id!==t.id);else db.folders=db.folders.filter(f=>f.id!==t.id)});db.trash=db.trash.filter(t=>t.deletedAt>=cutoff);if(old.length)save()}
+cleanupTrash();startReminderScanner();
+render();history.replaceState({shkafchik:navSnapshot()},'','#app');
+</script>
+</body></html>
