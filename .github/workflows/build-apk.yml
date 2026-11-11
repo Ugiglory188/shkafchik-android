@@ -23,24 +23,34 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
         with:
           accept-android-sdk-licenses: true
           log-accepted-android-sdk-licenses: false
-          
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
 
-      - name: Build APK
-        run: gradle :app:assembleDebug --no-daemon
+      - name: Build signed APK
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "$KEYSTORE_BASE64" || (echo "Missing KEYSTORE_BASE64" && exit 1)
+          test -n "$KEYSTORE_PASSWORD" || (echo "Missing KEYSTORE_PASSWORD" && exit 1)
+          test -n "$KEY_ALIAS" || (echo "Missing KEY_ALIAS" && exit 1)
+          test -n "$KEY_PASSWORD" || (echo "Missing KEY_PASSWORD" && exit 1)
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/shkafchik-release.jks"
+          KEYSTORE_PATH="$RUNNER_TEMP/shkafchik-release.jks" gradle :app:assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: shkafchik-debug-apk
+          name: shkafchik-signed-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
